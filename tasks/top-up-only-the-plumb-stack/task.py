@@ -41,8 +41,8 @@ LEAN_STEP = 0.0105  # each box of the leaning stack sits 1.05 cm further towards
 LEAN_C = (0.26, 0.13)
 PLUMB_C = (0.26, -0.13)
 LOOSE = {"loose_box_left": (0.15, 0.18), "loose_box_right": (0.15, -0.18)}
-TOTE_C = (0.14, 0.0)
-TOTE_IN = (0.07, 0.17)  # interior
+TOTE_C = (0.165, 0.0)
+TOTE_IN = (0.11, 0.17)  # interior; its far wall stands 5 mm in front of the stacks
 TOTE_WALL, TOTE_H = 0.01, 0.04
 WALKWAY = (0.45, 0.0)
 WALKWAY_SIZE = (0.10, 0.60, 0.001)
@@ -198,7 +198,9 @@ def _carry(side, src, dst, dst_z):
 
 
 def demo():
-    left = _carry("left", LOOSE["loose_box_left"], TOTE_C, TOP + 0.005 + BOX[2] / 2 + 0.006)
+    # Aim 1.5 cm past the tote's centre: in sim the left arm, carrying the full box low over the middle of the bench,
+    # stopped about 5 cm short of a first tote at x 14 and left the box on its near wall.
+    left = _carry("left", LOOSE["loose_box_left"], (TOTE_C[0] + 0.015, TOTE_C[1]), TOP + 0.005 + BOX[2] / 2 + 0.006)
     wait = sum(w.duration for w in left)
     px, py, _ = PLUMB[PLUMB_TOP]
     right = [Waypoint(wait, (0.12, -0.28, TRAVEL_Z), FINGER_OPEN, "wait for the left arm", YAW["right"]),
