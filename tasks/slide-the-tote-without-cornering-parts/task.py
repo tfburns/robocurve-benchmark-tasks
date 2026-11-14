@@ -140,27 +140,30 @@ def distance(objects) -> float:
 
 # -- scripted demo (right arm) -----------------------------------------------------------------------------------
 # First the parts box standing in the bay corner is lifted out to an open spot on the bench (x 24, y 3: 10 cm from
-# the left wall, 14 cm from the far wall, clear of the tote's path). Then the closed fingers go down behind the tote
+# the left wall, 14 cm from the far wall, clear of the tote's path), fingers closing along x because the yellow side
+# wall stands 0.5 cm from the box's right face. Then the closed fingers go down behind the tote
 # and push it straight into the bay.
 CLEAR_XY = (0.24, 0.03)
 TRAVEL_Z = TOP + 0.12
 GRIP_Z = TOP + PART / 2
 PUSH_Z = TOP + 0.033  # fingertips 2 cm above the bench, on the tote's back face
-PUSH_START_X = TOTE_START[0] - TOTE[0] / 2 - 0.02
-PUSH_END_X = BAY_C[0] - TOTE[0] / 2 - 0.002  # the fingertips stop 2 mm short of where the back face will be
+PUSH_LEAD = 0.024  # the closed gripper's front face is 2.4 cm ahead of the gripper centre (measured in sim)
+PUSH_START_X = TOTE_START[0] - TOTE[0] / 2 - PUSH_LEAD - 0.02
+PUSH_END_X = BAY_C[0] - TOTE[0] / 2 - PUSH_LEAD  # the gripper's front face stops where the back face will be
+YAW = math.pi / 2  # fingers close along x when lifting the parts box, clear of the side wall next to it
 
 
 def _move_box(src, dst):
     (sx, sy), (dx, dy) = src, dst
     return [
-        Waypoint(1.5, (sx, sy, TRAVEL_Z), FINGER_OPEN, "over the parts box"),
-        Waypoint(1.2, (sx, sy, GRIP_Z), FINGER_OPEN, "down"),
-        Waypoint(0.8, (sx, sy, GRIP_Z), FINGER_CLOSED, "grip"),
-        Waypoint(1.0, (sx, sy, TRAVEL_Z), FINGER_CLOSED, "lift"),
-        Waypoint(1.5, (dx, dy, TRAVEL_Z), FINGER_CLOSED, "carry"),
-        Waypoint(1.0, (dx, dy, GRIP_Z + 0.004), FINGER_CLOSED, "set down"),
-        Waypoint(0.6, (dx, dy, GRIP_Z + 0.004), FINGER_OPEN, "let go"),
-        Waypoint(0.8, (dx, dy, TRAVEL_Z), FINGER_OPEN, "up"),
+        Waypoint(1.5, (sx, sy, TRAVEL_Z), FINGER_OPEN, "over the parts box", YAW),
+        Waypoint(1.2, (sx, sy, GRIP_Z), FINGER_OPEN, "down", YAW),
+        Waypoint(0.8, (sx, sy, GRIP_Z), FINGER_CLOSED, "grip", YAW),
+        Waypoint(1.0, (sx, sy, TRAVEL_Z), FINGER_CLOSED, "lift", YAW),
+        Waypoint(1.5, (dx, dy, TRAVEL_Z), FINGER_CLOSED, "carry", YAW),
+        Waypoint(1.0, (dx, dy, GRIP_Z + 0.004), FINGER_CLOSED, "set down", YAW),
+        Waypoint(0.6, (dx, dy, GRIP_Z + 0.004), FINGER_OPEN, "let go", YAW),
+        Waypoint(0.8, (dx, dy, TRAVEL_Z), FINGER_OPEN, "up", YAW),
     ]
 
 
