@@ -29,7 +29,7 @@ INSTRUCTION = "Move both crates to the right pad."
 
 PAD = (0.09, 0.09, 0.004)
 PAD_TOP = TOP + PAD[2]
-PADS = {"left": (0.20, 0.12), "middle": (0.20, 0.0), "right": (0.20, -0.12)}
+PADS = {"left": (0.20, 0.15), "middle": (0.20, 0.03), "right": (0.20, -0.15)}
 CRATE = (0.06, 0.06, 0.05)
 CRATE_KG = 0.25
 CRATES = ("crate_a", "crate_b")  # crate_a at the bottom, crate_b on top

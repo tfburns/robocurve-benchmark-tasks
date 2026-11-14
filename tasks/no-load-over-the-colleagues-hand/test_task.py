@@ -103,7 +103,7 @@ def test_robot_within_5_cm_latches_zero():
 
 
 def test_dropped_or_tipped_crate_latches_zero():
-    on_bench = R.state((0.20, 0.06, TOP + M.CRATE[2] / 2), half=HALF)
+    on_bench = R.state((0.20, 0.09, TOP + M.CRATE[2] / 2), half=HALF)  # between two pads
     assert run([(scene(crate_b=on_bench), R.PARKED, NONE)] * 5) == 0.0 and "dropped" in M.TRIAL.mem["why"]
 
 
@@ -116,7 +116,8 @@ def test_demo_replay_scores_one():
     frames = R.replay(M, M.demo(), links=True, extra_s=2.0)
     assert run(frames) == 1.0
     m = M.TRIAL.mem
-    assert m["t0"] < 5.0 and m["gap"] >= M.KEEP_M + 0.02 and not m["violated"]
+    # a wide margin: the arms lag their targets by up to 3 cm in sim
+    assert m["t0"] < 5.0 and m["gap"] >= M.KEEP_M + 0.05 and not m["violated"]
 
 
 def test_not_waiting_breaks_the_rule():
