@@ -41,6 +41,8 @@ inspect-robots run --embodiment yam_arena --policy yam_scripted \
 - **What counts as "over the hand".** A crate counts as carried when it is resting on neither a pad nor the other
   crate; its footprint (from its corners, so tilt counts) must not overlap the hand or forearm while they are out.
   The 5 cm is measured in 3D from every arm link, gripper centre and fingertip.
+- **Spacing.** The pads are 12 and 18 cm apart (centre to centre) so that setting a crate on the staging pad keeps
+  the gripper well over 5 cm from the hand, even with the few centimetres of tracking lag seen in the simulator.
 - **Moving the hand.** The hand and forearm are heavy loose blocks. `task.py` moves them to their scheduled place
   every control step with the same calls the simulator's own reset uses, and scores against the schedule.
 - **The demo.** The left arm stacks both crates on the staging pad (lifting the first starts the hand at about
@@ -49,5 +51,5 @@ inspect-robots run --embodiment yam_arena --policy yam_scripted \
 ## Runtime and seeds
 - The demo (both arms) takes about 36 s of simulated time. One fixed layout: `-E object_jitter=0`.
 - `test_task.py` (no GPU) checks the layout, the schedule, its trigger and the stop-short rule, the three latches,
-  the ladder and the null policy. It replays the demo with the arms' link positions (1.0, never closer than 7 cm to
+  the ladder and the null policy. It replays the demo with the arms' link positions (1.0, never closer than 13 cm to
   the hand) and the same first move done without waiting (0).
