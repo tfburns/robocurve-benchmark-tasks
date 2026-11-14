@@ -116,7 +116,7 @@ def push_replay(plan):
     for objects, grips, pts in frames:
         tcp = grips[1]["tcp"]
         if abs(tcp[1] - ty) < M.TOTE[1] / 2 and tcp[2] < TOP + M.TOTE[2] and tcp[0] < tx:
-            tx = max(tx, tcp[0] + M.TOTE[0] / 2)
+            tx = max(tx, tcp[0] + M.PUSH_LEAD + M.TOTE[0] / 2)
         for n in M.PARTS:
             rp = objects[n].pos.copy()
             if n not in own or not np.allclose(rp, last_replay[n]):
