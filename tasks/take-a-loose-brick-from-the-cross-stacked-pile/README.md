@@ -39,9 +39,11 @@ Positions are recorded once the pile has settled (0.5 s).
   support model (bricks fall when their centre isn't over their contact patches).
 - **The free brick is on top, so no shims are needed.** The first design had free bricks in the middle of full
   layers, which needed to be 1 mm thinner. A top brick needs no such change, and taking from the top is real
-  practice. All bricks are 15 x 5 x 3 cm.
-- **Height.** With a straight-down grip, the arms reach about 20 cm above the bench here, so the pile is six layers
-  (18 cm). The demo lifts the top brick 2 cm, slides it out over the layer below, and carries it at 19 cm.
+  practice. All bricks are 15 x 5 x 2.5 cm.
+- **Height.** In the simulator the arms track a straight-down grip up to about 17 cm above the bench here, so the
+  pile is six layers of 2.5 cm bricks (15 cm). The demo lifts the top brick 2 cm, slides it out over the layer
+  below, and carries it at 16.5 cm. (A first version with 3 cm bricks at x 28 drifted 4 cm when lifted to 19 cm
+  and dragged the brick beside it.)
 
 ## Runtime and seeds
 - The demo (left arm) takes about 13 s of simulated time, plus the 2 s hold. One fixed layout: `-E object_jitter=0`.

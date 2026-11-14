@@ -31,9 +31,9 @@ SCORE_OVER = "end"
 SUCCESS_HOLD_S = 2.0  # the brick on the tray and the pile untouched for 2 s
 INSTRUCTION = "Take one brick from the pile and lay it on the tray."
 
-BRICK_L, BRICK_W, BRICK_H = 0.15, 0.05, 0.03
+BRICK_L, BRICK_W, BRICK_H = 0.15, 0.05, 0.025
 BRICK_KG = 0.25
-PILE_C = (0.28, 0.0)
+PILE_C = (0.25, 0.0)
 GAP = 0.0005  # spawn clearance between layers; the pile settles in the first moments
 OUT = 0.06  # how far the two loose-looking bricks stick out of the pile
 BRICK_RED, BRICK_DARK = (0.66, 0.27, 0.19), (0.58, 0.23, 0.16)
@@ -178,10 +178,10 @@ def distance(objects) -> float:
 # -- scripted demo (left arm) ------------------------------------------------------------------------------------
 # The top brick carries nothing: grip the part sticking out (fingers closing across its 5 cm width, 2.5 cm clear of
 # the neighbouring bricks), lift it 2 cm, slide it out sideways over the layer below, carry it to the tray and lay
-# it down along the tray. (The arm reaches about 20 cm above the bench with a straight-down grip here.)
+# it down along the tray.
 GRIP_Y = PILE_C[1] + BRICK_L / 2 + 0.03  # 3 cm outside the pile's face, 3 cm in from the brick's end
 GRIP_Z = _layer_z(6)
-TRAVEL_Z = TOP + 0.19
+TRAVEL_Z = TOP + 0.165  # in sim the arm tracks a straight-down grip up to about 17 cm here
 LIFT_Z = GRIP_Z + 0.02
 YAW = {"left": -math.pi / 2, "right": math.pi / 2}  # fingers close along x, across the brick
 PLACE_Z = TRAY_TOP + BRICK_H / 2 + 0.004
