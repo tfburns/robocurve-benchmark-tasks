@@ -46,8 +46,8 @@ OBJECTS = [
       for n, (x, y) in MEALS.items()],
 ]
 
-PRESS_R = CAP_R + 0.01  # a gripper point within 1 cm of the cap's edge, seen from above ...
-PRESS_DZ = 0.012  # ... and no more than 1.2 cm above its top presses the button
+PRESS_R = CAP_R + 0.01  # a gripper within 1 cm of the cap's edge, seen from above ...
+PRESS_DZ = 0.004  # ... with its fingertips no more than 4 mm above the cap's top presses the button
 CONTACT_M = 0.006
 FLAT_DEG = 10.0
 RELEASE_M = 0.02
@@ -61,9 +61,11 @@ TRIAL = hhkit.Trial(on_clear=_clear)
 
 
 def gripper_on_button() -> bool:
+    """The finger pads end 1.3 cm below the gripper centre, so the centre stands 1.3 cm higher than the fingertips."""
     for g in TRIAL.grippers():
-        for p in (g["tcp"], *g["tips"]):
-            if math.dist(p[:2], HOUSING_C) <= PRESS_R and float(p[2]) <= CAP_TOP + PRESS_DZ:
+        pts = [(g["tcp"], PAD_TIP_PAST_TCP), *[(t, 0.0) for t in g["tips"]]]
+        for p, above_tips in pts:
+            if math.dist(p[:2], HOUSING_C) <= PRESS_R and float(p[2]) - above_tips <= CAP_TOP + PRESS_DZ:
                 return True
     return False
 
