@@ -217,7 +217,11 @@ def _plan(moves):
 
 
 def demo():
-    return {"left": [*_plan(MOVES), Waypoint(1.2, (0.16, 0.20, TRAVEL_Z), FINGER_OPEN, "clear of the tins")]}
+    # The arm leaves the finished stack by backing off towards itself while rising: at the far spot it can only reach
+    # 11.5 cm up, and a first version that swung straight across from there clipped the top tin off in the simulator.
+    _x, y = SPOTS["right"]
+    return {"left": [*_plan(MOVES), Waypoint(1.2, (0.18, y, TOP + 0.14), FINGER_OPEN, "back off and up"),
+                     Waypoint(1.2, (0.16, 0.20, TRAVEL_Z), FINGER_OPEN, "clear of the tins")]}
 
 
 def whole_stack_demo():
