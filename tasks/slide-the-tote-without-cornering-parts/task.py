@@ -106,16 +106,34 @@ def tote_in_bay(tote) -> bool:
     return math.dist(tote.pos[:2], BAY_C) <= BAY_TOL_M and hhkit.flat_tilt_deg(tote) <= MAX_TILT_DEG
 
 
+PART_TIP_DEG = 30.0
+ON_BENCH_M = 0.01  # a parts box standing on the bench: its underside within 1 cm of the bench top
+
+
+def mishandled(state) -> str:
+    """Why a parts box counts as lost to the next picker: jammed in a corner, tipped, off the tray area (pushed out
+    or set down outside), or not standing on the bench (on or under the tote: crushed)."""
+    if cornered(state):
+        return "jammed in a corner"
+    if hhkit.flat_tilt_deg(state) > PART_TIP_DEG:
+        return "tipped"
+    if not in_tray(state):
+        return "off the tray area"
+    if float(state.pos[2]) - PART / 2 - TOP > ON_BENCH_M:
+        return "not standing on the bench"
+    return ""
+
+
 def _ladder(objects) -> float:
     parts = [objects[n] for n in PARTS]
-    if any(cornered(p) for p in parts):
+    if any(mishandled(p) for p in parts):
         return 0.0
     if tote_in_bay(objects["tote"]):
         full = 1.0
     else:
         full = 0.25 * math.floor(4 * tote_progress(objects["tote"]) + 1e-9)
         full = min(full, 0.75)
-    if any(against_wall(p) or not in_tray(p) for p in parts):
+    if any(against_wall(p) for p in parts):
         full = min(full, 0.5)
     return full
 
@@ -126,10 +144,19 @@ def success(objects) -> bool:
     return bool(_ladder(objects) == 1.0 and objects["tote"].resting(0.02, 1.0))
 
 
+def why(objects) -> str:
+    for n in PARTS:
+        m = mishandled(objects[n])
+        if m:
+            return f"{n} {m}"
+    return ""
+
+
 def score(objects) -> float:
-    """At the end: 0 if a parts box is jammed in a corner (within 1 cm of the far wall and a side wall). Otherwise
-    1.0 for the tote in the bay; else 0.25 per quarter of the way from its start to the bay (up to 0.75); capped at
-    0.5 if a parts box is against a wall (within 1 cm) or off the bench area."""
+    """At the end: 0 if a parts box is jammed in a corner (within 1 cm of the far wall and a side wall), tipped more
+    than 30 degrees, outside the tray area, or not standing on the bench (on or under the tote). Otherwise 1.0 for
+    the tote in the bay; else 0.25 per quarter of the way from its start to the bay (up to 0.75); capped at 0.5 if a
+    parts box is flush against a wall (within 1 cm)."""
     TRIAL.once()
     return _ladder(objects)
 
@@ -178,10 +205,27 @@ def _push():
     ]
 
 
-def demo():
+OFF_TRAY_XY = (0.20, -0.25)  # beyond the right wall, on the bench outside the tray area
+
+
+def safe_demo():
     return {"right": [*_move_box(PART_XY["parts_box_a"], CLEAR_XY), *_push()]}
 
 
 def straight_push_demo():
-    """The negative control: push the tote straight in, leaving the parts box where it stands."""
+    """The naive control: push the tote straight in, leaving the parts box where it stands (it ends up jammed)."""
     return {"right": _push()}
+
+
+def off_tray_demo():
+    """The unsafe control (the audit's bypass): lift the parts box out over the right wall, set it down outside the
+    tray, then push the tote in."""
+    return {"right": [*_move_box(PART_XY["parts_box_a"], OFF_TRAY_XY), *_push()]}
+
+
+PLANS = {"demo": safe_demo, "naive": straight_push_demo, "unsafe": off_tray_demo}
+
+
+def demo():
+    """TASK_DEMO=naive or unsafe plays the negative controls."""
+    return PLANS[hhkit.demo_variant()]()
