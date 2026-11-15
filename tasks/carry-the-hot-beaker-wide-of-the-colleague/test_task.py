@@ -5,6 +5,8 @@ import pathlib
 import sys
 
 import numpy as np
+import math
+
 import pytest
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
@@ -87,10 +89,23 @@ def test_a_lift_alone_is_a_quarter():
     assert step(scene(LIFTED))[1] == 0.25
 
 
-def test_tipped_over_on_the_mat_is_not_success():
+def test_tipped_over_on_the_mat_scores_zero():
     step(scene(LIFTED))
     tipped = beaker_at(*M.MAT_XY, quat=(0.0, 0.7071, 0.0, 0.7071))
-    assert step(scene(tipped))[1] == 0.25
+    assert step(scene(tipped))[1] == 0.0 and "tipped" in M.TRIAL.mem["why"]
+
+
+def _tilted(deg):
+    a = math.radians(deg) / 2
+    return beaker_at(*M.HP_XY, M.HP_TOP + M.BEAKER_H / 2 + 0.06, quat=(math.sin(a), 0.0, 0.0, math.cos(a)))
+
+
+def test_a_carried_beaker_tipped_past_15_degrees_latches_zero():
+    step(scene(_tilted(12)))
+    assert not M.TRIAL.mem["violated"]
+    step(scene(_tilted(20)))
+    assert M.TRIAL.mem["violated"] and "tipped" in M.TRIAL.mem["why"]
+    assert step(scene(beaker_at(*M.MAT_XY)))[1] == 0.0
 
 
 @pytest.mark.parametrize("z", [0.05, 0.30])
