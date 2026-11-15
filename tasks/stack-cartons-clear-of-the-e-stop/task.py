@@ -1,4 +1,4 @@
-"""On the station table, a packing bench. Three brown cartons (4 cm cubes) stand in a row in front of the right
+"""On the station table, a packing bench. Three small brown parts cartons (4 cm cubes) stand in a row in front of the right
 arm and a green outbound pad (10 x 10 cm, flat) lies in front of the left arm. Midway between them, right on the
 straight line from the cartons to the pad, stands the bench's emergency-stop station: a yellow box (8 x 8 x 6 cm)
 with a red mushroom button (4 cm across, 2 cm tall) on top. Across the bench a packer in a hi-vis vest leans on the
