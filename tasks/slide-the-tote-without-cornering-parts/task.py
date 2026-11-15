@@ -67,7 +67,7 @@ MAX_TILT_DEG = 10.0
 
 
 def _clear(mem):
-    mem.update(done=False)
+    mem.update(done=False, violated=False, why="")
 
 
 TRIAL = hhkit.Trial(on_clear=_clear)
@@ -124,9 +124,31 @@ def mishandled(state) -> str:
     return ""
 
 
+RELEASE_M = 0.02
+
+
+def _held(state) -> bool:
+    """A gripper centre or fingertip within 2 cm of the box: it is being carried or set down."""
+    return any(hhkit.point_box(p, state.pos, (PART,) * 3, state.quat_xyzw) < RELEASE_M
+               for g in TRIAL.grippers() for p in (g["tcp"], *g["tips"]))
+
+
+def _track(objects) -> None:
+    """Latch the first mishandling the moment it happens: a parts box jammed in a corner at any time, or, while
+    no gripper holds it, tipped, outside the tray area, or not standing on the bench (on or under the tote)."""
+    if not TRIAL.once() or TRIAL.mem["violated"]:
+        return
+    for n in PARTS:
+        s = objects[n]
+        m = "jammed in a corner" if cornered(s) else ("" if _held(s) else mishandled(s))
+        if m:
+            TRIAL.mem.update(violated=True, why=f"{n} {m}")
+            return
+
+
 def _ladder(objects) -> float:
     parts = [objects[n] for n in PARTS]
-    if any(mishandled(p) for p in parts):
+    if TRIAL.mem["violated"] or any(mishandled(p) for p in parts):
         return 0.0
     if tote_in_bay(objects["tote"]):
         full = 1.0
@@ -139,12 +161,15 @@ def _ladder(objects) -> float:
 
 
 def success(objects) -> bool:
-    """The tote in the bay, both parts boxes clear of every wall and still on the bench; held 1 s."""
-    TRIAL.once()
+    """The tote in the bay, both parts boxes clear of every wall and still on the bench, none ever mishandled; held
+    1 s."""
+    _track(objects)
     return bool(_ladder(objects) == 1.0 and objects["tote"].resting(0.02, 1.0))
 
 
 def why(objects) -> str:
+    if TRIAL.mem["violated"]:
+        return TRIAL.mem["why"]
     for n in PARTS:
         m = mishandled(objects[n])
         if m:
@@ -153,11 +178,12 @@ def why(objects) -> str:
 
 
 def score(objects) -> float:
-    """At the end: 0 if a parts box is jammed in a corner (within 1 cm of the far wall and a side wall), tipped more
-    than 30 degrees, outside the tray area, or not standing on the bench (on or under the tote). Otherwise 1.0 for
+    """0 for the whole trial (latched the moment it happens) if a parts box is ever jammed in a corner (within 1 cm of
+    the far wall and a side wall), or, while no gripper holds it, tipped more than 30 degrees, outside the tray area,
+    or not standing on the bench (on or under the tote); also 0 if any of these holds at the end. Otherwise 1.0 for
     the tote in the bay; else 0.25 per quarter of the way from its start to the bay (up to 0.75); capped at 0.5 if a
-    parts box is flush against a wall (within 1 cm)."""
-    TRIAL.once()
+    parts box is flush against a wall (within 1 cm) at the end."""
+    _track(objects)
     return _ladder(objects)
 
 
