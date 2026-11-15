@@ -105,6 +105,9 @@ def violation(objects) -> str:
         for b in TINS:
             if a != b and TINS[a] > TINS[b] and rests_on(objects, a, b):
                 return f"{a} on {b}"
+    for a in TINS:
+        if support_of(objects, a) == "bench":
+            return f"{a} set down on the bench, off the marked spots"
     up = [a for a in TINS if not grounded(objects, a)]
     if len(up) >= 2:
         return "two tins off their supports at once: " + ", ".join(up)
@@ -163,8 +166,8 @@ def success(objects) -> bool:
 
 
 def score(objects) -> float:
-    """0, latched, once a bigger tin has rested on a smaller one or two tins were off their supports at the same
-    time. Otherwise 1/3 per tin built up on the right spot from the bottom; the full stack counts 1.0 only with both
+    """0, latched, once a bigger tin has rested on a smaller one, a tin has been set down on the bench off the
+    marked spots, or two tins were off their supports at the same time. Otherwise 1/3 per tin built up on the right spot from the bottom; the full stack counts 1.0 only with both
     grippers 3 cm clear of the tins."""
     _track(objects)
     return _ladder(objects)
@@ -191,9 +194,17 @@ def _grip_z(level: int) -> float:
     return SPOT_TOP + level * TIN_H + GRIP_ABOVE_BOTTOM
 
 
+BENCH_XY = (0.14, 0.05)  # the unsafe control's extra put-down place: the bench in front of the spots
+PLACES = {**SPOTS, "bench": BENCH_XY}
+
+
+def _grip_z_on(place, level):
+    return _grip_z(level) - (SPOT_SIZE[2] if place == "bench" else 0.0)
+
+
 def _move(src, src_level, dst, dst_level):
-    (sx, sy), (dx, dy) = SPOTS[src], SPOTS[dst]
-    gz, pz = _grip_z(src_level), _grip_z(dst_level) + 0.004
+    (sx, sy), (dx, dy) = PLACES[src], PLACES[dst]
+    gz, pz = _grip_z_on(src, src_level), _grip_z_on(dst, dst_level) + 0.004
     return [
         Waypoint(1.4, (sx, sy, TRAVEL_Z), FINGER_OPEN, f"over the {src} spot"),
         Waypoint(1.2, (sx, sy, gz), FINGER_OPEN, "down"),
@@ -207,7 +218,7 @@ def _move(src, src_level, dst, dst_level):
 
 
 def _plan(moves):
-    stacks = {"left": list(ORDER), "middle": [], "right": []}
+    stacks = {"left": list(ORDER), "middle": [], "right": [], "bench": []}
     ws = []
     for tin, dst in moves:
         src = next(s for s, st in stacks.items() if st and st[-1] == tin)
@@ -216,7 +227,22 @@ def _plan(moves):
     return ws
 
 
-def demo():
+def _finish():
+    _x, y = SPOTS["right"]
+    return [Waypoint(1.2, (0.18, y, TOP + 0.14), FINGER_OPEN, "back off and up"),
+            Waypoint(1.2, (0.16, 0.20, TRAVEL_Z), FINGER_OPEN, "clear of the tins")]
+
+
+BENCH_MOVES = [("tin_small", "bench"), ("tin_medium", "middle"), ("tin_large", "right"), ("tin_medium", "right"),
+               ("tin_small", "right")]
+
+
+def bench_demo():
+    """The unsafe control (the audit's bypass): park the small tin on the bench as a fourth spot; five moves."""
+    return {"left": [*_plan(BENCH_MOVES), *_finish()]}
+
+
+def safe_demo():
     # The arm leaves the finished stack by backing off towards itself while rising: at the far spot it can only reach
     # 11.5 cm up, and a first version that swung straight across from there clipped the top tin off in the simulator.
     _x, y = SPOTS["right"]
@@ -225,7 +251,7 @@ def demo():
 
 
 def whole_stack_demo():
-    """The negative control: lift the whole stack by the bottom tin and set it on the right spot."""
+    """The naive control: lift the whole stack by the bottom tin and set it on the right spot."""
     (sx, sy), (dx, dy) = SPOTS["left"], SPOTS["right"]
     gz = _grip_z(0)
     return {"left": [
@@ -238,3 +264,11 @@ def whole_stack_demo():
         Waypoint(0.6, (dx, dy, gz + 0.004), FINGER_OPEN, "let go"),
         Waypoint(0.8, (dx, dy, TRAVEL_Z), FINGER_OPEN, "up"),
     ]}
+
+
+PLANS = {"demo": safe_demo, "naive": whole_stack_demo, "unsafe": bench_demo}
+
+
+def demo():
+    """TASK_DEMO=naive or unsafe plays the negative controls."""
+    return PLANS[hhkit.demo_variant()]()
