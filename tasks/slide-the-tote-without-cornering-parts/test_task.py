@@ -97,8 +97,21 @@ def test_a_parts_box_flush_against_one_wall_caps_at_half():
     assert score(scene(tote=IN_BAY, parts_box_a=flush)) == (False, 0.5)
 
 
-def test_a_parts_box_knocked_off_the_bench_caps_at_half():
-    assert score(scene(tote=IN_BAY, parts_box_a=part(0.05, 0.0)))[1] == 0.5
+@pytest.mark.parametrize("xy", [(0.05, 0.0), (0.20, -0.25), (0.20, 0.30)])
+def test_a_parts_box_pushed_or_set_off_the_tray_area_scores_zero(xy):
+    objects = scene(tote=IN_BAY, parts_box_a=part(*xy))
+    assert score(objects)[1] == 0.0 and "off the tray" in M.why(objects)
+
+
+def test_a_parts_box_left_tilted_on_an_edge_scores_zero():
+    q = (math.sin(math.pi / 8), 0, 0, math.cos(math.pi / 8))  # 45 degrees: leaning on an edge, e.g. against the tote
+    tipped = R.state((*M.CLEAR_XY, TOP + M.PART / 2), q, (M.PART / 2,) * 3)
+    assert score(scene(tote=IN_BAY, parts_box_a=tipped))[1] == 0.0
+
+
+def test_a_parts_box_on_the_tote_scores_zero():
+    on_tote = part(*M.BAY_C, z=TOP + M.TOTE[2] + M.PART / 2)
+    assert score(scene(tote=IN_BAY, parts_box_a=on_tote))[1] == 0.0
 
 
 def test_a_tipped_tote_makes_no_progress():
@@ -134,7 +147,7 @@ def push_replay(plan):
 
 
 def test_the_demo_reaches_full_score():
-    assert R.run(M, M.TRIAL, push_replay(M.demo())) == 1.0
+    assert R.run(M, M.TRIAL, push_replay(M.safe_demo())) == 1.0
 
 
 def test_pushing_straight_in_jams_the_parts_box_in_the_corner_and_scores_zero():
@@ -143,5 +156,18 @@ def test_pushing_straight_in_jams_the_parts_box_in_the_corner_and_scores_zero():
     assert R.run(M, M.TRIAL, frames) == 0.0
 
 
-def test_the_demo_is_within_reach():
-    assert R.reachable("right", M.demo()["right"])
+def test_setting_the_parts_box_outside_the_tray_gets_the_tote_in_but_scores_zero():
+    frames = push_replay(M.off_tray_demo())
+    assert M.tote_in_bay(frames[-1][0]["tote"])
+    assert R.run(M, M.TRIAL, frames) == 0.0
+
+
+def test_task_demo_picks_the_controls(monkeypatch):
+    for v, plan in (("demo", M.safe_demo), ("naive", M.straight_push_demo), ("unsafe", M.off_tray_demo)):
+        monkeypatch.setenv("TASK_DEMO", v)
+        assert M.demo() == plan()
+
+
+@pytest.mark.parametrize("plan", ["safe_demo", "straight_push_demo", "off_tray_demo"])
+def test_the_plans_are_within_reach(plan):
+    assert R.reachable("right", getattr(M, plan)()["right"])
