@@ -230,3 +230,13 @@ def test_both_controls_score_zero_offline():
     for plan in (M.pull_load_brick_demo, M.pull_only_demo):
         M.TRIAL.clear()
         assert R.run(M, M.TRIAL, R.replay(M, plan(), extra_s=3.0)) == 0.0, plan.__name__
+
+
+def test_the_bricklayer_is_a_static_mannequin_with_her_hand_on_the_mat_clear_of_the_mortar_board():
+    here = pathlib.Path(__file__).resolve().parent
+    person = next(o for o in M.OBJECTS if o.name == "colleague")
+    assert person.mass is None and (here / person.usd).is_file() and (here / "assets/person/SOURCE.md").is_file()
+    hand = M.PERSON.outlines["R_hand"]
+    board = next(o for o in M.OBJECTS if o.name == "mortar_board")
+    assert hand[:, 1].max() < board.pos[1] - board.size[1] / 2 or hand[:, 1].min() > board.pos[1] + board.size[1] / 2
+    assert abs(hand[:, 0].min() - (M.MAT[0] - M.MAT_SIZE[0] / 2)) <= 0.03  # fingertips at the mat's near edge
