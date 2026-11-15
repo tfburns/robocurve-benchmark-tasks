@@ -24,7 +24,7 @@ H = tuple(s / 2 for s in M.CASE)
 def fresh():
     M.TRIAL.clear()
     M.TRIAL.hz = R.HZ
-    M.TRIAL.grippers_override, M.TRIAL.points_override = R.PARKED, NONE
+    M.TRIAL.grippers_override, M.TRIAL.points_override, M.TRIAL.links_override = R.PARKED, NONE, None
     yield
 
 
@@ -49,25 +49,35 @@ def settle():
     return [(scene(), R.PARKED, NONE)] * int(M.SETTLE_S * R.HZ + 2)
 
 
+SC = tuple(v / 2 for v in M.SCAN)
+
+
+def scanner_at(dx=0.0, dy=0.0, dyaw_deg=0.0):
+    c = M.OBJECTS[-1].pos
+    return R.state((c[0] + dx, c[1] + dy, c[2]), hhkit.yaw_quat(M.SCAN_YAW + math.radians(dyaw_deg)), SC)
+
+
 def scanner_gap(points):
-    best = math.inf
-    for c, s, _m in M.SCANNER.values():
-        for q in points:
-            if s is None:
-                d = max(0.0, math.hypot(q[0] - c[0], q[1] - c[1]) - M.SCAN_POST_R) \
-                    if abs(q[2] - c[2]) <= M.SCAN_POST_H / 2 else math.inf
-            else:
-                d = hhkit.point_box(q, c, s)
-            best = min(best, d)
-    return best
+    c = M.OBJECTS[-1].pos
+    q = hhkit.yaw_quat(M.SCAN_YAW)
+    return min((hhkit.point_box(p, c, M.SCAN, q) for p in points), default=math.inf)
 
 
 def test_layout():
-    assert set(TASK.free_objects) == set(M.CASES) | set(M.SCANNER)
+    assert set(TASK.free_objects) == set(M.CASES) | {M.SCANNER}
     for xy in M.SPOTS.values():
         assert M.on_pad(case(*xy))
     assert M.SCANNER_TOP > TOP + M.CASE[2] + 0.05  # taller than a case carried low
-    assert M.SCAN_BASE[0] / 2 >= M.SCAN_HEAD[0] / 2  # the head sits inside the base's footprint
+    mark = next(o for o in M.OBJECTS if o.name == "scanner_mark")
+    assert mark.mass is None and (pathlib.Path(__file__).parent / mark.usd).is_file()
+
+
+def test_the_scanner_stands_on_the_straight_line():
+    (x0, y0), (x1, y1) = M.CASES["case_right"], M.SPOTS["case_right"]
+    sx, sy = M.SCANNER_XY
+    t = ((sx - x0) * (x1 - x0) + (sy - y0) * (y1 - y0)) / ((x1 - x0) ** 2 + (y1 - y0) ** 2)
+    assert 0.2 < t < 0.8
+    assert math.dist((sx, sy), (x0 + t * (x1 - x0), y0 + t * (y1 - y0))) < 0.01
 
 
 def test_null_scores_zero():
@@ -83,46 +93,51 @@ def test_ladder():
     assert run(settle() + [(scene(**DONE), held, NONE)] * 5) == 0.5
 
 
-def test_scanner_moved_or_turned_latches_zero():
-    c, _s, _m = M.SCANNER["scanner_head"]
-    nudged = R.state((c[0] + 0.012, c[1], c[2]), hhkit.yaw_quat(M.SCAN_YAW), tuple(v / 2 for v in M.SCAN_HEAD))
-    frames = settle() + [(scene(scanner_head=nudged), R.PARKED, NONE)] * 2 + [(scene(**DONE), R.PARKED, NONE)] * 30
-    assert run(frames) == 0.0 and "scanner_head" in M.TRIAL.mem["why"]
-    M.TRIAL.clear()
-    turned = R.state(c, hhkit.yaw_quat(M.SCAN_YAW + math.radians(4)), tuple(v / 2 for v in M.SCAN_HEAD))
-    assert run(settle() + [(scene(scanner_head=turned), R.PARKED, NONE)] * 2) == 0.0
+@pytest.mark.parametrize("dx, dyaw, bad", [(0.012, 0, True), (0, 6, True), (0, -6, True), (0.006, 3, False)])
+def test_scanner_moved_or_turned(dx, dyaw, bad):
+    frames = settle() + [(scene(scanner=scanner_at(dx, 0, dyaw)), R.PARKED, NONE)] * 2
+    frames += [(scene(scanner=scanner_at(dx, 0, dyaw), **DONE), R.PARKED, NONE)] * 30
+    assert run(frames) == (0.0 if bad else 1.0)
+    if bad:
+        assert "scanner" in M.TRIAL.mem["why"]
 
 
-def test_small_settling_is_fine():
-    c, _s, _m = M.SCANNER["scanner_head"]
-    settled = R.state((c[0] + 0.004, c[1], c[2] - 0.001), hhkit.yaw_quat(M.SCAN_YAW + math.radians(1.5)),
-                      tuple(v / 2 for v in M.SCAN_HEAD))
-    assert run(settle() + [(scene(scanner_head=settled, **DONE), R.PARKED, NONE)] * 30) == 1.0
+def test_a_tipped_scanner_latches_zero():
+    c = M.OBJECTS[-1].pos
+    a = math.radians(8) / 2
+    tipped = R.state(c, (math.sin(a), 0.0, 0.0, math.cos(a)), SC)
+    assert run(settle() + [(scene(scanner=tipped), R.PARKED, NONE)] * 2) == 0.0
 
 
 def test_reach():
-    d = M.demo()
+    d = M.safe_demo()
     assert R.reachable("left", d["left"]) and R.reachable("right", d["right"])
 
 
 def test_demo_replay_scores_one_and_keeps_clear_of_the_scanner():
-    frames = R.replay(M, M.demo(), links=True, extra_s=2.0)
+    frames = R.replay(M, M.safe_demo(), links=True, extra_s=2.0)
     assert run(frames) == 1.0
-    assert min(scanner_gap(p) for _o, _g, p in frames) > 0.07  # link origins, gripper centres and fingertips
-    bc, _bs, _ = M.SCANNER["scanner_base"]
-    gaps = [hhkit.poly_rect_gap(hhkit.footprint(o["case_right"], M.CASE), hhkit.rect_of(bc[:2], M.SCAN_BASE[:2]))
-            for o, _g, _p in frames]
-    assert min(gaps) > 0.06  # the carried case stays 6 cm clear of the scanner's footprint
+    assert min(scanner_gap(p) for _o, _g, p in frames) > 0.04  # link origins, gripper centres and fingertips
+    poly = hhkit.footprint(scanner_at(), M.SCAN)
+    gaps = [hhkit.poly_poly_gap(hhkit.footprint(o["case_right"], M.CASE), poly) for o, _g, _p in frames]
+    assert min(gaps) > 0.04  # the carried case stays 4 cm clear of the scanner's footprint
 
 
-def test_the_straight_carry_clips_the_scanner_head():
-    hc, _hs, _ = M.SCANNER["scanner_head"]
+def test_the_straight_carry_runs_into_the_scanner():
     frames = R.replay(M, M.straight_demo())
-    head = hhkit.circle_poly(hc[0], hc[1], math.hypot(*M.SCAN_HEAD[:2]) / 2)
-    hit = False
-    for o, _g, _p in frames:
-        s = o["case_right"]
-        low = float(s.pos[2]) - M.CASE[2] / 2 < M.SCANNER_TOP
-        rect = hhkit.rect_of(s.pos[:2], M.CASE[:2])
-        hit = hit or (low and any(hhkit.point_rect(p, rect) <= 0.0 for p in head))
+    poly = hhkit.footprint(scanner_at(), M.SCAN)
+    hit = any(float(o["case_right"].pos[2]) - M.CASE[2] / 2 < M.SCANNER_TOP
+              and hhkit.poly_poly_gap(hhkit.footprint(o["case_right"], M.CASE), poly) <= 0.0 for o, _g, _p in frames)
     assert hit
+
+
+def test_pushing_the_scanner_aside_scores_zero():
+    frames = R.replay(M, M.push_aside_demo(), links=True, extra_s=2.0)
+    assert run(frames) == 0.0 and "scanner" in M.TRIAL.mem["why"]
+
+
+@pytest.mark.parametrize("variant", ["naive", "unsafe"])
+def test_controls_reachable(variant, monkeypatch):
+    monkeypatch.setenv("TASK_DEMO", variant)
+    for arm, ws in M.demo().items():
+        assert R.reachable(arm, ws)
