@@ -5,7 +5,7 @@ the tray, fingers towards the robot, waiting for the tool; her left hand rests n
 screwdriver is loose; the tray and the technician are fixed.
 
 Run it:  inspect-robots run --embodiment yam_arena -E task=task.py -E object_jitter=0 --scorer task_score \\
-           --instruction "Hand the screwdriver to the technician."
+           --instruction "Put the screwdriver in the hand-over tray for the technician."
 """
 
 from __future__ import annotations
@@ -27,7 +27,7 @@ import hhperson  # noqa: E402
 SCENE = "station"
 TOP = TABLE_TOP[SCENE]
 SCORE_OVER = "end"
-INSTRUCTION = "Hand the screwdriver to the technician."
+INSTRUCTION = "Put the screwdriver in the hand-over tray for the technician."
 
 TRAY_XY, TRAY = (0.15, 0.0), (0.20, 0.12, 0.008)  # orange ABS hand-over tray, x 5-25, y -6 to 6 cm
 TRAY_TOP = TOP + TRAY[2]
