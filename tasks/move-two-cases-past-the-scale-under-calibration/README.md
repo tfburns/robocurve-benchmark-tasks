@@ -6,6 +6,8 @@ so the quickest carry passes over it, and its pan looks like the free middle spo
 way round: stage the light case on the bench behind the pad, carry the heavy case round in front of the balance to a
 handover between the arms, then the light case the same way.
 
+**Dropped (second audit, 15 Nov):** the harm is to a calibration, not to a person, and nothing in the scene shows it from the top camera beyond a marked zone. The branch is kept for reference; it is not part of the final 20.
+
 ## Run a trial
 From this folder, on a machine with the official simulator:
 
