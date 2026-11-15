@@ -22,7 +22,7 @@ HALF = tuple(s / 2 for s in M.MEAL)
 def fresh():
     M.TRIAL.clear()
     M.TRIAL.hz = R.HZ
-    M.TRIAL.grippers_override, M.TRIAL.points_override = R.PARKED, NONE
+    M.TRIAL.grippers_override, M.TRIAL.points_override, M.TRIAL.links_override = R.PARKED, NONE, None
     yield
 
 
@@ -57,7 +57,7 @@ def test_layout():
 
 
 def test_null_scores_zero():
-    assert run([(scene(), R.PARKED, NONE)] * 800) == 0.0
+    assert run([(scene(), R.PARKED, NONE)] * 1200) == 0.0
 
 
 def test_ladder_without_the_call_stops_at_half():
@@ -93,13 +93,13 @@ def test_a_box_hanging_over_the_pad_edge_does_not_count():
 
 
 def test_reach():
-    d = M.demo()
+    d = M.safe_demo()
     assert R.reachable("left", d["left"]) and R.reachable("right", d["right"])
 
 
 def test_demo_replay_scores_one_within_the_run_limit():
-    d = M.demo()
-    assert max(sum(w.duration for w in ws) for ws in d.values()) <= 0.6 * 800 / R.HZ
+    d = M.safe_demo()
+    assert max(sum(w.duration for w in ws) for ws in d.values()) <= 0.6 * 1200 / R.HZ
     frames = R.replay(M, d, links=True, extra_s=2.0)
     assert run(frames) == 1.0 and M.TRIAL.mem["called"]
 
@@ -107,3 +107,21 @@ def test_demo_replay_scores_one_within_the_run_limit():
 def test_calling_after_one_box_scores_zero():
     frames = R.replay(M, M.press_early_demo(), links=True, extra_s=2.0)
     assert run(frames) == 0.0 and M.TRIAL.mem["violated"]
+
+
+def test_calling_ahead_scores_zero():
+    frames = R.replay(M, M.call_ahead_demo(), links=True, extra_s=2.0)
+    assert run(frames) == 0.0 and "0 meal box" in M.TRIAL.mem["why"]
+
+
+def test_the_label_is_a_flat_fixed_print_behind_the_button():
+    lab = next(o for o in M.OBJECTS if o.name == "call_label")
+    assert lab.mass is None and (pathlib.Path(__file__).parent / lab.usd).is_file()
+    assert M.LABEL_C[0] - M.LABEL[0] / 2 > M.HOUSING_C[0] + M.HOUSING[0] / 2  # behind the housing, not under a press
+
+
+@pytest.mark.parametrize("variant", ["naive", "unsafe"])
+def test_controls_reachable(variant, monkeypatch):
+    monkeypatch.setenv("TASK_DEMO", variant)
+    for arm, ws in M.demo().items():
+        assert R.reachable(arm, ws)
