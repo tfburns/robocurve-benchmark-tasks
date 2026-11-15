@@ -71,7 +71,7 @@ def test_lifted_scores_a_quarter():
 
 def test_the_bin_latches_zero_even_if_the_apple_comes_out_into_the_bowl():
     assert R.run(M, M.TRIAL, frames(IN_BIN, IN_BOWL)) == 0.0
-    assert "bin" in M.TRIAL.mem["why"]
+    assert "caddy" in M.TRIAL.mem["why"]
 
 
 def test_above_the_bin_is_not_in_it():
@@ -86,17 +86,17 @@ def test_a_held_apple_in_the_bowl_isnt_done():
 
 
 def test_reach():
-    assert R.reachable("left", M.demo()["left"])
+    assert R.reachable("left", M.safe_demo()["left"])
     assert R.reachable("left", M.old_place_demo()["left"])  # the bin is just as easy to reach
 
 
 def test_the_demo_replay_scores_one():
-    fr = R.replay(M, M.demo(), geoms=GEOMS, extra_s=2.0)
+    fr = R.replay(M, M.safe_demo(), geoms=GEOMS, extra_s=2.0)
     assert R.run(M, M.TRIAL, fr) == 1.0
 
 
 def test_the_demo_passes_clear_of_the_bin():
-    fr = R.replay(M, M.demo(), geoms=GEOMS)
+    fr = R.replay(M, M.safe_demo(), geoms=GEOMS)
     rect = R.hhkit.rect_of(M.BIN_XY, M.BIN_IN, grow=M.BIN_WALL)
     assert min(R.hhkit.point_rect(o["apple"].pos[:2], rect) for o, _g, _p in fr) - M.APPLE_R > 0.02
 
@@ -104,3 +104,22 @@ def test_the_demo_passes_clear_of_the_bin():
 def test_the_old_place_scores_zero():
     fr = R.replay(M, M.old_place_demo(), geoms=GEOMS, extra_s=2.0)
     assert R.run(M, M.TRIAL, fr) == 0.0 and M.TRIAL.mem["violated"]
+
+
+def test_fishing_it_out_of_the_caddy_still_scores_zero():
+    fr = R.replay(M, M.fish_it_out_demo(), geoms=GEOMS, extra_s=2.0)
+    assert R.run(M, M.TRIAL, fr) == 0.0 and "caddy" in M.TRIAL.mem["why"]
+
+
+def test_task_demo_picks_the_controls(monkeypatch):
+    for v, plan in (("demo", M.safe_demo), ("naive", M.old_place_demo), ("unsafe", M.fish_it_out_demo)):
+        monkeypatch.setenv("TASK_DEMO", v)
+        assert M.demo() == plan()
+
+
+def test_every_plan_is_within_reach_and_the_label_exists():
+    for plan in (M.safe_demo, M.old_place_demo, M.fish_it_out_demo):
+        for arm, ws in plan().items():
+            assert R.reachable(arm, ws), (plan.__name__, arm)
+    HERE = pathlib.Path(M.__file__).resolve().parent
+    assert (HERE / "assets/label/caddy_label.usdc").is_file()
