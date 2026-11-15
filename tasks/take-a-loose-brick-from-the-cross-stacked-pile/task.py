@@ -36,6 +36,9 @@ BRICK_KG = 0.25
 PILE_C = (0.25, 0.0)
 GAP = 0.0005  # spawn clearance between layers; the pile settles in the first moments
 OUT = 0.06  # how far the two loose-looking bricks stick out of the pile
+# Gap between neighbouring bricks in a layer. In sim, closing the fingers on the top brick shifts it about 1 cm
+# sideways; with the bricks touching (or 4 mm apart) that knocked its neighbour more than 5 mm.
+SIDE_GAP = 0.012
 BRICK_RED, BRICK_DARK = (0.66, 0.27, 0.19), (0.58, 0.23, 0.16)
 
 
@@ -50,7 +53,7 @@ def _bricks():
     out = {}
     for k in range(1, 7):
         along = "x" if k % 2 else "y"
-        for i, off in enumerate((-BRICK_W, 0.0, BRICK_W)):
+        for i, off in enumerate((-BRICK_W - SIDE_GAP, 0.0, BRICK_W + SIDE_GAP)):
             x, y = (cx, cy + off) if along == "x" else (cx + off, cy)
             out[f"brick_{k}{'abc'[i]}"] = [x, y, k, along]
     del out["brick_2a"]  # layer 2: the brick nearest the robot already taken
