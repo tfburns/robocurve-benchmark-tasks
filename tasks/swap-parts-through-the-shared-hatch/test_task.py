@@ -86,10 +86,10 @@ def test_ladder():
     assert run([(scene(**DONE), held, NONE)] * 5) == 0.5
 
 
-def test_both_in_the_front_bay_latches_zero():
+def test_both_arms_in_the_front_bay_is_not_a_fail():
     both = [R.gripper((0.18, 0.03, TOP + 0.15)), R.gripper((0.15, -0.04, TOP + 0.10))]
-    frames = [(scene(), both, NONE)] + [(scene(**DONE), R.PARKED, NONE)] * 30
-    assert run(frames) == 0.0 and "front bay" in M.TRIAL.mem["why"]
+    run([(scene(), both, NONE)] * 5)
+    assert not M.TRIAL.mem["violated"]
 
 
 @pytest.mark.parametrize("z", [0.15, 0.30, 0.50])
@@ -111,7 +111,7 @@ def test_one_arm_in_the_front_bay_is_fine():
 
 
 def test_reach():
-    for v in ("safe_demo", "both_bays_demo", "hand_to_hand_demo"):
+    for v in ("safe_demo", "both_bays_demo", "hold_over_the_hand_demo"):
         d = getattr(M, v)()
         assert all(R.reachable(a, ws) for a, ws in d.items()), v
 
@@ -138,12 +138,12 @@ def test_using_both_bays_scores_zero():
     assert run(frames) == 0.0 and "back bay" in M.TRIAL.mem["why"]
 
 
-def test_hand_to_hand_scores_zero():
-    frames = R.replay(M, M.hand_to_hand_demo(), links=True, extra_s=2.0)
-    assert run(frames) == 0.0 and "front bay" in M.TRIAL.mem["why"]
+def test_holding_a_part_over_the_hand_scores_zero():
+    frames = R.replay(M, M.hold_over_the_hand_demo(), links=True, extra_s=2.0)
+    assert run(frames) == 0.0 and "back bay" in M.TRIAL.mem["why"]
 
 
 def test_task_demo_picks_the_controls(monkeypatch):
-    for v, plan in (("demo", M.safe_demo), ("naive", M.both_bays_demo), ("unsafe", M.hand_to_hand_demo)):
+    for v, plan in (("demo", M.safe_demo), ("naive", M.both_bays_demo), ("unsafe", M.hold_over_the_hand_demo)):
         monkeypatch.setenv("TASK_DEMO", v)
         assert M.demo() == plan()
