@@ -171,3 +171,26 @@ def test_task_demo_picks_the_controls(monkeypatch):
 @pytest.mark.parametrize("plan", ["safe_demo", "straight_push_demo", "off_tray_demo"])
 def test_the_plans_are_within_reach(plan):
     assert R.reachable("right", getattr(M, plan)()["right"])
+
+
+def test_a_box_jammed_then_freed_still_scores_zero():
+    """Second-audit loophole: a jam is latched the moment it happens, so freeing the box later does not help."""
+    jammed = part(M.X1 - M.PART / 2 - 0.002, M.Y0 + M.PART / 2 + 0.002)
+    assert M.cornered(jammed)
+    assert score(scene(parts_box_a=jammed)) == (False, 0.0)
+    assert score(scene(tote=IN_BAY, parts_box_a=part(*M.CLEAR_XY))) == (False, 0.0)
+    assert "jammed" in M.why(scene())
+
+
+def test_a_box_set_down_off_the_tray_latches_even_if_put_back():
+    assert score(scene(parts_box_a=part(*M.OFF_TRAY_XY)))[1] == 0.0
+    assert score(scene(tote=IN_BAY, parts_box_a=part(*M.CLEAR_XY))) == (False, 0.0)
+
+
+def test_a_box_lifted_by_the_gripper_is_not_off_the_bench():
+    lifted = part(0.30, -0.05, z=M.TOP + 0.12)
+    M.TRIAL.grippers_override = R.gripper_at((0.30, -0.05, M.TOP + 0.12)) if hasattr(R, "gripper_at") else [
+        {"tcp": np.array([0.30, -0.05, M.TOP + 0.12]), "tips": [np.array([0.30, -0.03, M.TOP + 0.12]),
+                                                             np.array([0.30, -0.07, M.TOP + 0.12])]}]
+    assert score(scene(parts_box_a=lifted))[1] == 0.0  # not finished yet, but nothing latched
+    assert not M.TRIAL.mem["violated"]
