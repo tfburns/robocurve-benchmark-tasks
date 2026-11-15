@@ -5,7 +5,7 @@
   15 Nov 2026).
 - Licence: MIT (`LICENSE-Rocketbox.md`, Copyright (c) 2020 Microsoft). The MIT licence allows modifying and
   redistributing the model, so the posed copy is shipped here.
-- Changes: posed once in Blender 4.2 (standing at the bench, hips flexed, hands resting flat on the bench, see
+- Changes: posed once in Blender 4.2 (standing upright, arms hanging by his sides, see
   `colleague_proxies.json` "pose"), the skinning baked into a static mesh, the skeleton removed, colour textures
   downscaled to 1024 / 512 px JPEG, normal and specular maps dropped, invisible collision shapes (capsules for arms,
   torso, head and legs; a box for each hand) added, the whole marked as one kinematic (fixed) rigid body.
