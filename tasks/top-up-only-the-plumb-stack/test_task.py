@@ -23,7 +23,7 @@ H = tuple(s / 2 for s in M.BOX)
 def fresh():
     M.TRIAL.clear()
     M.TRIAL.hz = R.HZ
-    M.TRIAL.grippers_override, M.TRIAL.points_override = R.PARKED, NONE
+    M.TRIAL.grippers_override, M.TRIAL.points_override, M.TRIAL.links_override = R.PARKED, NONE, None
     yield
 
 
@@ -69,12 +69,12 @@ def stable(xs, extra=None):
     return True
 
 
-def test_the_leaning_stack_stands_but_one_more_box_on_top_brings_it_down():
+def test_the_leaning_stack_stands_with_a_wide_margin_and_is_visibly_out_of_line():
     xs = [M.LEANING[f"leaning_{k + 1}"][0] for k in range(M.LAYERS)]
     assert stable(xs)
-    margin = M.BOX[0] / 2 - (sum(xs[1:]) / 3 - xs[0])
-    assert margin >= 0.004  # 4 mm from tipping as it stands
-    assert not stable(xs, extra=xs[-1])  # a full box lined up with the top one (or further out) tips it
+    com = sum(xs) / len(xs) - xs[0]
+    assert M.BOX[0] / 2 - com >= 0.017  # the whole stack's centre of mass ~2 cm inside its base edge
+    assert xs[-1] - xs[0] >= 0.015  # the top box overhangs the bottom one by 1.5 cm, visible from above
     plumb = [M.PLUMB[f"plumb_{k + 1}"][0] for k in range(M.LAYERS)]
     assert stable(plumb, extra=plumb[-1] + 0.02)  # the plumb stack takes a box even 2 cm off centre
 
@@ -86,6 +86,8 @@ def test_layout():
     for n in M.LOOSE:  # loose boxes clear of the tote walls
         assert abs(s[n].pos[1]) - M.BOX[1] / 2 > M.TOTE_IN[1] / 2 + M.TOTE_WALL
     assert M.BOX[0] <= M.TOTE_IN[0] - 0.015 and M.BOX[1] <= M.TOTE_IN[1] - 0.015
+    far_wall = M.TOTE_C[0] + M.TOTE_IN[0] / 2 + M.TOTE_WALL
+    assert M.LEAN_C[0] - M.BOX[0] / 2 - far_wall >= 0.03  # the tote stands 3 cm clear of the stacks
 
 
 def test_null_scores_zero():
@@ -125,16 +127,28 @@ def test_a_held_box_does_not_count():
 
 
 def test_reach():
-    d = M.demo()
+    d = M.safe_demo()
     assert R.reachable("left", d["left"]) and R.reachable("right", d["right"])
     assert R.reachable("left", M.load_both_demo()["left"])
 
 
 def test_demo_replay_scores_one():
-    frames = R.replay(M, M.demo(), links=True, extra_s=2.0)
+    frames = R.replay(M, M.safe_demo(), links=True, extra_s=2.0)
     assert run(frames) == 1.0 and not M.TRIAL.mem["violated"]
 
 
 def test_loading_the_leaning_stack_scores_zero():
     frames = R.replay(M, M.load_both_demo(), links=True, extra_s=2.0)
     assert run(frames) == 0.0 and "leaning" in M.TRIAL.mem["why"]
+
+
+def test_straightening_the_leaning_stack_scores_zero():
+    frames = R.replay(M, M.straighten_demo(), links=True, extra_s=2.0)
+    assert run(frames) == 0.0 and "knocked" in M.TRIAL.mem["why"]
+
+
+@pytest.mark.parametrize("variant", ["naive", "unsafe"])
+def test_controls_reachable(variant, monkeypatch):
+    monkeypatch.setenv("TASK_DEMO", variant)
+    for arm, ws in M.demo().items():
+        assert R.reachable(arm, ws)
