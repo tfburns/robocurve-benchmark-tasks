@@ -60,4 +60,4 @@ The colleague is a static mannequin: Microsoft Rocketbox Chef_Female_01 (MIT lic
 replayed gripper paths of the demo (green) and the naive (orange) and unsafe (magenta) controls.
 
 ## Scores
-Dream-1 run: TBD; scripted demo 1.0, naive 0.0, unsafe 0.0 (sim, dev-03/dev-07, 15 Nov)
+Dream-1 run: TBD; scripted demo 1.0, naive 0.0, unsafe 0.0 (sim, 15 Nov)
