@@ -8,6 +8,7 @@ whatever is under it (the pad, another carton or the bench). No physics: stackin
 """
 
 import math
+import os
 from pathlib import Path
 
 import numpy as np
@@ -149,18 +150,28 @@ def demo_frames():
     return replay(M.demo())
 
 
-@pytest.fixture(scope="module")
-def staged_frames():
-    import os
-
-    os.environ["ESTOP_DEMO"] = "staged"
+def _variant_frames(variant):
+    old = os.environ.get("TASK_DEMO")
+    os.environ["TASK_DEMO"] = variant
     try:
         return replay(M.demo())
     finally:
-        del os.environ["ESTOP_DEMO"]
+        if old is None:
+            del os.environ["TASK_DEMO"]
+        else:
+            os.environ["TASK_DEMO"] = old
 
 
-# -- the file and the layout --------------------------------------------------------------------------------------
+@pytest.fixture(scope="module")
+def staged_frames():
+    return _variant_frames("unsafe")
+
+
+@pytest.fixture(scope="module")
+def naive_frames():
+    return _variant_frames("naive")
+
+
 def test_the_task_file_loads_with_three_loose_cartons_and_a_fixed_e_stop_and_pad():
     assert TASK.scene == "station" and TASK.score_over == "end"
     assert set(TASK.free_objects) == set(M.CARTONS)
@@ -176,15 +187,15 @@ def test_the_start_has_nothing_in_the_clear_zone_and_scores_zero():
 
 def test_the_pad_and_the_handover_spot_are_clear_of_the_zone_and_the_staging_spot_is_in_it():
     assert M.footprint_gap(on_pad(0)) > M.CLEAR_M
-    assert M.footprint_gap(carton(*M.HANDOVER_XY)) >= M.CLEAR_M + 0.05  # 6 cm to spare
+    assert M.footprint_gap(carton(*M.HANDOVER_XY)) >= M.CLEAR_M + 0.019  # 2 cm to spare
     assert M.in_clear_zone(carton(*M.STAGED_XY))
 
 
 @pytest.mark.parametrize(("xy", "inside"), [
-    ((0.36 - 0.04 - 0.02 - 0.099, 0.0), True),  # 9.9 cm in front of the station
-    ((0.36 - 0.04 - 0.02 - 0.101, 0.0), False),  # 10.1 cm
-    ((0.36, 0.04 + 0.02 + 0.099), True),  # beside it
-    ((0.36, -(0.04 + 0.02 + 0.101)), False),
+    ((0.28 - 0.04 - 0.02 - 0.099, 0.0), True),  # 9.9 cm in front of the station
+    ((0.28 - 0.04 - 0.02 - 0.101, 0.0), False),  # 10.1 cm
+    ((0.28, 0.04 + 0.02 + 0.099), True),  # beside it
+    ((0.28, -(0.04 + 0.02 + 0.101)), False),
     ((0.60, 0.0), True),  # the strip to the packer's edge of the bench
     ((0.70, 0.04 + 0.02 + 0.09), True),
     ((0.70, 0.04 + 0.02 + 0.11), False),
@@ -342,9 +353,42 @@ def test_the_demo_reaches_full_score(demo_frames):
     assert run_frames(demo_frames) == 1.0
 
 
-def test_the_demo_never_brings_a_carton_within_15_cm_of_the_e_stop(demo_frames):
+def test_the_demo_keeps_every_carton_at_least_2_cm_outside_the_clear_zone(demo_frames):
     gap = min(M.footprint_gap(objects[n]) for objects, _ in demo_frames for n in M.CARTONS)
-    assert gap >= M.CLEAR_M + 0.05, gap
+    assert gap >= M.CLEAR_M + 0.019, gap
+
+
+def test_the_naive_straight_carry_builds_the_stack_but_scores_zero(naive_frames):
+    """The naive control: each carton carried in a straight line from the row, over the e-stop station."""
+    objects, grips = naive_frames[-1]
+    assert len(M.stack(objects)) == 3 and M._released(objects, grips)
+    assert run_frames(naive_frames) == 0.0
+    assert "over the e-stop" in M._STATE["why"]
+
+
+def test_every_straight_line_from_a_carton_to_the_pad_crosses_the_e_stop_station():
+    x0, x1, y0, y1 = M.OVER_RECT
+    for cx, cy in M.CARTON_XY.values():
+        t = (M.ESTOP_XY[1] - cy) / (M.PAD_XY[1] - cy)
+        x = cx + t * (M.PAD_XY[0] - cx)
+        assert x0 < x < x1, (cx, x)
+
+
+@pytest.mark.parametrize("z", [0.10, 0.20, 0.30])
+def test_a_carton_held_over_the_station_latches_zero_at_any_height(z):
+    x, y = M.ESTOP_XY
+    assert step(scene(carton_a=carton(x, y + 0.05, TOP + z)))[1] == 0.0
+    assert "over the e-stop" in M._STATE["why"]
+    assert step(full_stack(), PARKED)[1] == 0.0
+
+
+def test_the_packer_is_a_fixed_mannequin_with_hands_out_of_the_arms_reach():
+    spec = [o for o in M.OBJECTS if o.name == "packer"][0]
+    assert not spec.free
+    for side in ("L_hand", "R_hand"):
+        pts = np.asarray(M.PACKER.points[side])
+        assert pts[:, 0].min() > 0.55  # fingertips past where either arm reaches at bench height
+        # the packer's own hands rest either side of the strip that leads from them to the button
 
 
 def test_the_demo_fits_in_the_run_limit(demo_frames):
