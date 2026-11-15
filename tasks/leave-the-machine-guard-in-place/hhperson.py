@@ -43,6 +43,15 @@ class UsdBody(Box):
             raise ValueError(f"{self.name}: a UsdBody here is fixed (mass=None)")
 
 
+@dataclass(frozen=True)
+class TrimBox(Box):
+    """A loose box (its collider) drawn as ``trim``: visual-only boxes riding on it, each (name, size, offset from the
+    box centre in its own frame, sRGB colour). The collider box itself is hidden. Used for a knife or a tool whose
+    blade and handle must be told apart on camera; scoring treats it as the plain box it is."""
+
+    trim: tuple = ()
+
+
 class Person:
     """A posed person: the USD body for OBJECTS and its collision capsules and hand outlines for scoring."""
 
@@ -97,6 +106,47 @@ def _usd_object(spec: UsdBody):
     return obj
 
 
+def _trim_object(spec: TrimBox, scene):
+    import isaaclab.sim as sim_utils
+    from isaaclab.sim.spawners.shapes import spawn_cuboid
+    from isaaclab.sim.utils import clone
+    from isaaclab_arena.assets.object import Object
+    from isaaclab_arena.assets.object_type import ObjectType
+    from isaaclab_arena.utils.pose import Pose
+    from isaaclab_physx.sim.schemas import PhysxRigidBodyPropertiesCfg
+
+    trim = tuple(spec.trim)
+
+    @clone
+    def _spawn(prim_path, cfg, *args, **kwargs):
+        from pxr import Gf, UsdGeom
+
+        prim = spawn_cuboid.__wrapped__(prim_path, cfg, *args, **kwargs)
+        stage = prim.GetStage()
+        mesh = stage.GetPrimAtPath(f"{prim_path}/geometry/mesh")
+        if mesh.IsValid():
+            UsdGeom.Imageable(mesh).MakeInvisible()
+        for name, size, off, color in trim:
+            path = f"{prim_path}/trim/{name}"
+            cube = UsdGeom.Cube.Define(stage, path)
+            cube.CreateSizeAttr(1.0)
+            cube.AddTranslateOp().Set(Gf.Vec3d(*[float(v) for v in off]))
+            cube.AddScaleOp().Set(Gf.Vec3f(*[float(v) for v in size]))
+            look = sim_utils.PreviewSurfaceCfg(diffuse_color=scene.linear_rgb(color), roughness=0.35,
+                                               metallic=0.8 if name.startswith("blade") or name.startswith("steel") else 0.0)
+            look.func(f"{path}_material", look)
+            sim_utils.bind_visual_material(path, f"{path}_material", stage=stage)
+        return prim
+
+    cfg = sim_utils.CuboidCfg(
+        size=tuple(spec.size), func=_spawn,
+        rigid_props=PhysxRigidBodyPropertiesCfg(), mass_props=sim_utils.MassPropertiesCfg(mass=spec.mass),
+        collision_props=scene._contact_props(), physics_material=scene._grippy(),
+        visual_material=sim_utils.PreviewSurfaceCfg(diffuse_color=scene.linear_rgb(spec.color), roughness=0.4))
+    return Object(name=spec.name, object_type=ObjectType.RIGID, spawner_cfg=cfg,
+                  initial_pose=Pose(position_xyz=tuple(spec.pos), rotation_xyzw=scene._yaw_xyzw(spec.yaw)))
+
+
 def _state(spec: UsdBody) -> ObjectState:
     pos = np.asarray(spec.pos, float)
     half = np.asarray(spec.size, float) / 2
@@ -113,6 +163,8 @@ def _patch_scene(scene) -> None:
         if isinstance(spec, UsdBody):
             _SPECS[spec.name] = spec
             return _usd_object(spec)
+        if isinstance(spec, TrimBox):
+            return _trim_object(spec, scene)
         return task_object(spec)
 
     def object_states_hook(environment, names):
