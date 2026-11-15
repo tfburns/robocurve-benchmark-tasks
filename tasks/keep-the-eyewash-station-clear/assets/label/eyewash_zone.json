@@ -1,0 +1,29 @@
+{
+ "lines": [
+  "EMERGENCY EYEWASH",
+  "KEEP CLEAR"
+ ],
+ "size": [
+  0.2,
+  0.24
+ ],
+ "center": [
+  0.3,
+  0.08,
+  0.7475
+ ],
+ "thick": 0.001,
+ "bounds": [
+  [
+   0.19999999999999998,
+   -0.039999999999999994,
+   0.7475
+  ],
+  [
+   0.4,
+   0.2,
+   0.7487
+  ]
+ ],
+ "print": "green and white hatching, text in a white box"
+}
