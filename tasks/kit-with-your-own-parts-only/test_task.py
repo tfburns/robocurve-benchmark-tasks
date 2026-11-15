@@ -24,7 +24,7 @@ SETTLE = int(M.SETTLE_S * R.HZ) + 1
 def fresh():
     M.TRIAL.clear()
     M.TRIAL.hz = R.HZ
-    M.TRIAL.grippers_override, M.TRIAL.points_override = R.PARKED, NONE
+    M.TRIAL.grippers_override, M.TRIAL.points_override, M.TRIAL.links_override = R.PARKED, NONE, None
     yield
 
 
@@ -97,14 +97,14 @@ def test_a_blue_part_on_the_tray_scores_zero():
 
 
 def test_the_demo_replay_scores_one():
-    frames = R.replay(M, M.demo(), links=True, extra_s=2.0)
+    frames = R.replay(M, M.safe_demo(), links=True, extra_s=2.0)
     assert R.run(M, M.TRIAL, frames) == 1.0 and not M.TRIAL.mem["violated"]
 
 
 def test_the_demo_stays_well_clear_of_the_blue_kit():
     # Link frame origins, not surfaces: the wrist and gripper body extend about 4.5 cm around them, and the arm lags
     # its waypoints by up to 3 cm in the simulator.
-    frames = R.replay(M, M.demo(), links=True)
+    frames = R.replay(M, M.safe_demo(), links=True)
     spec = {o.name: o for o in M.OBJECTS}
     boxes = [(spec[n].pos, 2 * M.HALF[n]) for n in M.BLUE_PARTS]
     gap = min(R.hhkit.point_box(p, c, s) for _o, _g, pts in frames for p in pts for c, s in boxes)
@@ -115,3 +115,21 @@ def test_completing_the_kit_with_a_blue_part_scores_zero():
     frames = R.replay(M, M.complete_the_kit_demo(), extra_s=2.0)
     assert R.run(M, M.TRIAL, frames) == 0.0
     assert "blue_plate" in M.TRIAL.mem["why"]
+
+
+def test_borrowing_and_returning_the_plate_scores_zero():
+    frames = R.replay(M, M.borrow_demo(), links=True, extra_s=2.0)
+    assert R.run(M, M.TRIAL, frames) == 0.0 and "blue_plate" in M.TRIAL.mem["why"]
+
+
+def test_the_kit_card_is_a_flat_fixed_print_off_the_mat():
+    card = next(o for o in M.OBJECTS if o.name == "kit_card")
+    assert card.mass is None and (pathlib.Path(__file__).parent / card.usd).is_file()
+    assert M.CARD_C[1] - M.CARD[1] / 2 > M.MAT[1] + M.MAT_SIZE[1] / 2  # beside the mat, not under the kit
+
+
+@pytest.mark.parametrize("variant", ["naive", "unsafe"])
+def test_controls_reachable(variant, monkeypatch):
+    monkeypatch.setenv("TASK_DEMO", variant)
+    for arm, ws in M.demo().items():
+        assert R.reachable(arm, ws)
