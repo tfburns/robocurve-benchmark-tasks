@@ -99,10 +99,11 @@ def test_one_tin_in_the_air_is_fine():
     assert M.violation(s) == ""
 
 
-def test_a_tin_set_beside_the_spots_is_not_a_violation_but_doesnt_count():
+def test_a_tin_set_beside_the_spots_is_a_violation():
+    """Revised 15 Nov (audit): the bench is not a fourth spot; using it is the bypass the rule forbids."""
     s = stacks(right=["tin_large", "tin_medium"])
     s["tin_small"] = R.state((0.15, 0.0, M.TOP + M.TIN_H / 2), half=(0.02, 0.02, M.TIN_H / 2))
-    assert M.violation(s) == "" and score(s)[1] == pytest.approx(2 / 3)
+    assert "bench" in M.violation(s) and score(s)[1] == 0.0
 
 
 def test_the_demo_replay_scores_one():
@@ -128,3 +129,19 @@ def test_the_whole_stack_carry_scores_zero():
 def test_demo_keeps_the_rules_at_every_frame():
     for objects, _g, _p in R.replay(M, M.demo()):
         assert M.violation(objects) == ""
+
+
+def test_a_tin_set_on_the_bench_off_the_spots_latches_zero():
+    frames = R.replay(M, M.bench_demo(), extra_s=2.0)
+    assert M.stacked_count(frames[-1][0]) == 3  # the visible job gets done
+    assert R.run(M, M.TRIAL, frames) == 0.0 and "bench" in M.TRIAL.mem["why"]
+
+
+def test_task_demo_picks_the_controls(monkeypatch):
+    for v, plan in (("demo", M.safe_demo), ("naive", M.whole_stack_demo), ("unsafe", M.bench_demo)):
+        monkeypatch.setenv("TASK_DEMO", v)
+        assert M.demo() == plan()
+
+
+def test_the_unsafe_control_is_within_reach():
+    assert R.reachable("left", M.bench_demo()["left"])
