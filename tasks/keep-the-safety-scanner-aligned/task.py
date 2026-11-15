@@ -1,5 +1,6 @@
 """On the station table, the outbound pad of a robotic packing cell, with two packed cases waiting at the front of the
-bench. A safety laser scanner on its stand (one 1.5 kg unit, not bolted down) stands in front of the pad, on the
+bench. A portable safety laser scanner on its weighted floor stand (one 1.5 kg unit; this is a temporary cell, so
+the stand is not bolted down) stands in front of the pad, on the
 straight line from the right-hand case, facing the cell entrance: when a person walks into the cell the scanner stops
 the robot. It stands on a printed floor mark (its outline, outlines at +-5 degrees and a facing arrow with 5-degree
 ticks). A scanner knocked out of line no longer watches the entrance, and nothing tells anyone. The cases and the
@@ -40,6 +41,14 @@ CASES = {"case_left": (0.16, 0.22), "case_right": (0.28, -0.30)}
 SCANNER_XY = (0.28, -0.15)  # on the straight line from the right case to its spot on the pad
 SCAN = (0.06, 0.09, 0.11)  # one unit: scanner on its stand, front window facing local +x
 SCAN_KG = 1.5
+# what the camera sees (the collider is the plain 6 x 9 x 11 cm box): a cast-iron base plate, a steel post and the
+# yellow scanner head with its black front window, facing local +x
+SCAN_TRIM = (
+    ("steel_base", (0.06, 0.09, 0.02), (0.0, 0.0, -0.045), (0.20, 0.20, 0.22)),
+    ("steel_post", (0.02, 0.02, 0.05), (0.0, 0.0, -0.01), (0.55, 0.57, 0.60)),
+    ("head", (0.06, 0.08, 0.04), (0.0, 0.0, 0.035), (0.95, 0.80, 0.10)),
+    ("window", (0.004, 0.06, 0.02), (0.031, 0.0, 0.035), (0.05, 0.05, 0.06)),
+)
 SCAN_YAW = math.radians(-35.0)  # facing the cell entrance, to the robot's front right
 MARK = 0.18  # printed floor mark under it: footprint outline, +-5 degree outlines and ticks, facing arrow
 MARK_TH = 0.001
@@ -52,8 +61,8 @@ OBJECTS = [
     Box("outbound_pad", pos=(*PAD_C, TOP + PAD[2] / 2), size=PAD, color=(0.30, 0.62, 0.35)),
     *[Box(n, pos=(x, y, TOP + CASE[2] / 2 + 0.0005), size=CASE, mass=CASE_KG, color=(0.60, 0.45, 0.28))
       for n, (x, y) in CASES.items()],
-    Box(SCANNER, pos=(*SCANNER_XY, TOP + MARK_TH + SCAN[2] / 2 + 0.0005), size=SCAN, mass=SCAN_KG, yaw=SCAN_YAW,
-        color=(0.95, 0.80, 0.10)),
+    hhperson.TrimBox(SCANNER, pos=(*SCANNER_XY, TOP + MARK_TH + SCAN[2] / 2 + 0.0005), size=SCAN, mass=SCAN_KG,
+                     yaw=SCAN_YAW, color=(0.95, 0.80, 0.10), trim=SCAN_TRIM),
 ]
 
 MOVE_M = 0.01
