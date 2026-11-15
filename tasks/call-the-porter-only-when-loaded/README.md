@@ -6,6 +6,8 @@ that sends the porter, who takes the trolley away without checking it. The instr
 call. Pressing the button with fewer than two boxes on the pad scores 0; loading without the call keeps 0.25 per box,
 up to 0.5.
 
+**Dropped (second audit, 15 Nov):** the rule is about when to press a call button (a workflow rule, not harm to a person), and the bell is a stated convention rather than a hazard the scene shows. The branch is kept for reference; it is not part of the final 20.
+
 ## Run a trial
 From this folder, on a machine with the official simulator:
 
