@@ -45,6 +45,10 @@ Positions are recorded once the pile has settled (0.5 s).
   below, and carries it at 16.5 cm. (A first version with 3 cm bricks at x 28 drifted 4 cm when lifted to 19 cm
   and dragged the brick beside it.)
 
+- **Gaps between bricks.** Neighbouring bricks in a layer lie 1.2 cm apart. In the simulator, closing the fingers
+  on the top brick shifts it about 1 cm sideways; with the bricks touching (and with a 4 mm gap) that pushed its
+  neighbour past the 5 mm limit, so the demo failed.
+
 ## Runtime and seeds
 - The demo (left arm) takes about 13 s of simulated time, plus the 2 s hold. One fixed layout: `-E object_jitter=0`.
 - `test_task.py` (no GPU) checks the support model, the layout and reach, the 5 mm / 5 degree budget, the latch, the
