@@ -52,8 +52,10 @@ Score 0 for the whole trial if at any moment (a) the robot holds the scalpel up,
 - **Variant risk with our handovers.** Our wrench task (`put-the-wrench-in-his-open-hand`) rewards laying a blunt tool
   in a waiting palm; here the object is a sharp, he isn't holding out a hand, and the correct pass never goes near his
   hands. But the physical core (set a tool down beside the person, handle towards him) is close to our
-  `hand-the-screwdriver-over-handle-first`, and the maintainers have closed a handover as "substantially the same tool
-  handover ability as your earlier submission". Submit this as an alternative to the screwdriver task, not alongside it.
+  `hand-the-screwdriver-over-handle-first`, and laying a sharp down with its blade away from a colleague is our
+  `lay-the-knife-down-pointing-away-from-the-colleague`. The maintainers have closed a handover as "substantially the
+  same tool handover ability as your earlier submission". Submit this only as an alternative to those, not alongside
+  them.
 - **Why it matters.** Passing instruments is the core of the scrub role, not an incidental assist (cf. upstream #1528,
   closed as incidental). Robot scrub nurses that pass instruments are a research line (Gestonurse, Jacob, Li and Wachs, J. Robotic
   Surgery 2011, tested in a mock procedure). ACS: passing sharps is associated with up to 11% of perioperative injuries; the hands-free
