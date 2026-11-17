@@ -89,6 +89,7 @@ def test_start_scores_zero():
 def test_both_handles_up_scores_one():
     a = fork("fork_a", (M.CYL_XY[0] - 0.01, M.CYL_XY[1], IN_Z), HANDLES_UP)
     b = fork("fork_b", (M.CYL_XY[0] + 0.01, M.CYL_XY[1], IN_Z), HANDLES_UP)
+    assert step(scene(fork_a=a, fork_b=b)) == (False, 1.0)  # still needs a second, unmoved step
     assert step(scene(fork_a=a, fork_b=b)) == (True, 1.0)
 
 
