@@ -96,7 +96,7 @@ FORKS = tuple(FORK_YS)
 
 
 def _clear(mem):
-    mem.update(violated=False, why="", lifted=0)
+    mem.update(violated=False, why="", lifted=0, prev={}, still={})
 
 
 TRIAL = hhkit.Trial(on_clear=_clear)
@@ -143,6 +143,11 @@ def _track(objects) -> None:
         return
     mem = TRIAL.mem
     hhdebug.log(TRIAL, objects, list(FORKS))
+    for n in FORKS:  # still: both ends moved under 1 mm since the last control step (under 2 cm/s at 20 Hz)
+        e = np.concatenate(ends(objects[n]))
+        p = mem["prev"].get(n)
+        mem["still"][n] = bool(p is not None and float(np.abs(e - p).max()) < 0.001)
+        mem["prev"][n] = e
     if mem["violated"]:
         return
     for n in FORKS:
@@ -162,11 +167,11 @@ def _wrong_way(s) -> bool:
 
 
 def success(objects) -> bool:
-    """Both forks standing in the cylinder handles up (tines down), let go and at rest, and the gripper never
-    touched a fork's tines or bowl."""
+    """Both forks standing in the cylinder handles up (tines down), let go and still (each end moved under 1 mm in
+    the last control step), and the gripper never touched a fork's tines or bowl."""
     objects = hhperson.body_states(objects, OBJECTS)
     _track(objects)
-    return bool(not TRIAL.mem["violated"] and all(_out_right(objects[n]) and objects[n].resting(0.03, 1.0)
+    return bool(not TRIAL.mem["violated"] and all(_out_right(objects[n]) and TRIAL.mem["still"].get(n, False)
                                                   for n in FORKS))
 
 
