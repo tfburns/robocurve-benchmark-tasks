@@ -36,7 +36,7 @@ Offline checks (no simulator): `python -m pytest -q test_task.py`.
 Positions in cm on the table from the midpoint between the two arm bases: x forward, y to the robot's left; heights above the table top. A polishing towel folded to 2 cm (10 x 20 cm, fixed) is centred at x 33, y 33. On it lie two dinner forks (19 cm long, 2.2 cm wide, 4 mm thick, 45 g; International Tableware HA-221 size), along x with the tines at +x, centred at x 33.5, y 37 and y 29; their handle ends overhang the towel's near edge by 4 cm. A second folded towel (10 x 20 cm, fixed) is centred at x 19, y 13. The cutlery cylinder (Browne 80110 size: 9.5 cm outside diameter, 14 cm tall, 3 mm walls and floor; fixed) stands at x 36, y 6.
 
 ## Scoring
-Score 0 for the whole trial if at any moment a fingertip or the gripper centre comes within 8 mm of a fork's tines or bowl (staff handle clean forks by the handle only), or if at the end any fork stands in the cylinder tines up (its tine end at least 12 cm above its handle end). Otherwise 0.5 for each fork standing in the cylinder handles up (its handle end at least 12 cm above its tine end) and let go. Success (ends the trial): both forks handles up in the cylinder, let go and at rest, held for 1 s. A person can score it by looking into the cylinder and watching the grips.
+Score 0 for the whole trial if at any moment a fingertip or the gripper centre comes within 8 mm of a fork's tines or bowl (staff handle clean forks by the handle only), or if at the end any fork stands in the cylinder tines up (its tine end at least 12 cm above its handle end). Otherwise 0.5 for each fork standing in the cylinder handles up (its handle end at least 12 cm above its tine end) and let go. Success (ends the trial): both forks handles up in the cylinder, let go and still, held for 1 s. A person can score it by looking into the cylinder and watching the grips.
 
 ## Design notes
 - **Why this task.** Every waiter, busser and dish-room worker sets out flatware. The US FDA Food Code (4-904.11(B),
@@ -58,7 +58,7 @@ Score 0 for the whole trial if at any moment a fingertip or the gripper centre c
   degrees off flat; a fork leaning on the wall is about 60-80 degrees), let go: 0.5 each. Any fork in the cylinder
   tines up (the reverse): 0 for the trial. A fingertip or the grip centre within 8 mm of a fork's tines or bowl at
   any moment: 0 for the trial (latched; staff handle clean forks by the handle only). Success: both forks handles up,
-  let go, at rest, for 1 s.
+  let go, still, for 1 s.
 - **Person-scorable.** Look into the cylinder: two forks, tines down. Watch the gripper never closes on the tines.
 - **Not covered elsewhere.** No upstream PR stands forks handles up (checked 17 Nov 05:57: #2385 hangs
   a cutlery caddy, #2194 rolls a fork in a napkin, merged #1830 puts tongs in a tray).
@@ -73,4 +73,4 @@ Lay both forks back on the polishing towel on their taped outlines, tines away f
 Each fork is one rigid box collider (19 x 2.2 x 0.4 cm) drawn as a handle, neck, bowl and four tines; real forks are curved and taper. The pads hold the handle's edges; a 6 mm torsional-friction contact patch stands in for the pads' real contact area (PhysX point contacts otherwise let a thin part spin about the pinch axis). The cylinder is a ring of 14 thin fixed wall boxes with a floor; its perforations are not modelled. The towels are rigid boxes. Cleanliness itself is not simulated: the scorer checks which end is up and where the gripper touched.
 
 ## Scores
-Dream-1 run: TBD (not run in this campaign). Scripted demo in Isaac Sim (yam_scripted; 17 Nov 2026 on dev-07 and dev-08, identical): 1.0 at the end of the plan (step 1667; both forks handles up in the cylinder, let go). TASK_DEMO=naive 0.0 (each fork tipped up by its handle end and dropped in: the first stands tines up; the second bounced out onto the bench); TASK_DEMO=unsafe 0.0 (first fork dropped in tines up, second lowered in handles up). Offline (test_task.py): scorer cases and all three plans track within 3 mm and 2 degrees in yam_arena's IK.
+Dream-1 run: TBD (not run in this campaign). Scripted demo in Isaac Sim (yam_scripted; 17 Nov 2026 on dev-07): 1.0, success at step 1485 (both forks handles up in the cylinder, let go and still). TASK_DEMO=naive 0.0 (each fork tipped up by its handle end and dropped in: the first stands tines up, the second bounced out onto the bench); TASK_DEMO=unsafe 0.0 (first fork dropped in tines up, second lowered in handles up). Offline (test_task.py): scorer cases, and all three plans track within 3 mm and 2 degrees in yam_arena's IK.
