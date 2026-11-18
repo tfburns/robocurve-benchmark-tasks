@@ -39,6 +39,9 @@ INSTRUCTION = "Pass the surgeon the scalpel."
 PERSON = hhperson.Person("colleague")  # Rocketbox Medical_Male_04: green scrubs and mask, hands held in front
 STEEL, WHITE, PAD_BLUE = (0.70, 0.72, 0.74), (0.93, 0.93, 0.90), (0.12, 0.20, 0.45)
 HANDLE_BLUE, BLADE = (0.35, 0.55, 0.85), (0.80, 0.81, 0.83)
+# a green surgical towel (as on instrument trays), so the steel blade (~2 x 7 px) stands out at the policy cameras'
+# 320x176; on a white towel it was nearly invisible
+DRAPE_GREEN = (0.22, 0.48, 0.40)
 
 TRAY = (0.24, 0.34, 0.004)  # stainless instrument tray (its floor), fixed
 TRAY_XY = (0.31, 0.06)
@@ -78,7 +81,7 @@ TOPVIEW_HALF_WIDTH = 1.2
 
 OBJECTS = [
     Box("tray", pos=(*TRAY_XY, TOP + TRAY[2] / 2), size=TRAY, color=STEEL),
-    Box("towel", pos=(*TOWEL_XY, TT + TOWEL[2] / 2), size=TOWEL, color=WHITE),
+    Box("towel", pos=(*TOWEL_XY, TT + TOWEL[2] / 2), size=TOWEL, color=DRAPE_GREEN),
     Box("neutral_zone", pos=(*PAD_XY, TOP + PAD[2] / 2), size=PAD, color=PAD_BLUE),
     hhperson.TrimBox("scalpel", pos=(*SCALPEL_XY, TOWEL_TOP + SCALPEL[2] / 2 + 0.0005), size=SCALPEL,
                      mass=SCALPEL_KG, color=HANDLE_BLUE, yaw=0.0, trim=SCALPEL_TRIM),
