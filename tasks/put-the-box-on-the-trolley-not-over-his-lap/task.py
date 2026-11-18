@@ -31,7 +31,7 @@ INSTRUCTION = "Put the box on the trolley."
 
 BOX = (0.10, 0.07, 0.08)  # a cardboard box of steel fittings, 10 x 7 x 8 cm
 BOX_KG = 0.9
-BOX_XY = (0.44, 0.40)
+BOX_XY = (0.44, 0.24)  # in view: at (44, 40) it was hidden under the left arm in the top camera at the start
 TROLLEY_XY, TROLLEY = (0.07, 0.75), (0.20, 0.20, 0.70)  # a low parts trolley, its top 4.75 cm below the bench
 TROLLEY_TOP = TROLLEY[2]
 STOOL_XY, STOOL = (0.42, 1.02), (0.30, 0.30, 0.43)
@@ -44,7 +44,7 @@ LIFT_M = 0.03
 RELEASE_M = 0.02
 
 OBJECTS = [
-    Box("trolley", pos=(*TROLLEY_XY, TROLLEY[2] / 2), size=TROLLEY, color=(0.20, 0.32, 0.55)),
+    Box("trolley", pos=(*TROLLEY_XY, TROLLEY[2] / 2), size=TROLLEY, color=(0.95, 0.70, 0.10)),  # safety yellow, not his jeans' blue
     Box("stool", pos=(*STOOL_XY, STOOL[2] / 2), size=STOOL, color=(0.25, 0.25, 0.27)),
     Box("box", pos=(*BOX_XY, TOP + BOX[2] / 2 + 0.0005), size=BOX, mass=BOX_KG, color=(0.66, 0.52, 0.34)),
     PERSON.spec,
