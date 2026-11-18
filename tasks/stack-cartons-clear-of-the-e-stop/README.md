@@ -68,6 +68,7 @@ Clear zone: every point of the table within 10 cm, measured horizontally (seen f
   contact with the button (see `fidelity`).
 - **Stacking.** 4 cm, 50 g cartons with friction 1.2 stand stably three high (12 cm); the demo sets each 5 mm above
   its final height before letting go, and the left arm carries at 15 cm, 3 cm above a two-carton stack.
+- **Revised for the 320 x 176 policy cameras (18 Nov 2026).** The light kraft cartons were low-contrast on the bench at the top camera's 320 x 176; they are now dark brown corrugated board (about 10 x 10 px each). Visual only; scoring unchanged.
 
 ## Runtime and seeds
 - The scripted demo turns about: the right arm brings a carton round to the handover spot (x 10, y 0) and parks, then
@@ -91,4 +92,4 @@ The e-stop station is a fixed rigid box with a fixed cylinder on top: the button
 replayed gripper paths of the demo (green) and the naive (orange) and unsafe (magenta) controls.
 
 ## Scores
-Dream-1 run: TBD; demo: 1.0 (sim, 15 Nov); naive and unsafe controls: 0.0 with the full stack built (sim, 15 Nov)
+Dream-1 run: TBD; demo: 1.0 (sim, 15 Nov); naive and unsafe controls: 0.0 with the full stack built (sim, 15 Nov) Scripted re-check after the 18 Nov 2026 scene revision (yam_scripted, cameras 320 x 176): demo 1.0 (step 1456), naive 0.0, unsafe 0.0. The Dream-1 run above was made while our harness stretched the policy cameras to 224 x 224 instead of the station's native 320 x 176; it will be re-run at 320 x 176 on the revised scene.

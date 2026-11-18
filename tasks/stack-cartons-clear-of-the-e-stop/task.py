@@ -50,7 +50,7 @@ PAD_TOP = TOP + PAD_SIZE[2]
 GREEN = (0.15, 0.62, 0.25)
 CARTON = 0.04  # edge (m)
 CARTON_KG = 0.05
-KRAFT = (0.70, 0.52, 0.32)
+KRAFT = (0.52, 0.34, 0.18)  # dark brown corrugated board: contrast with the light bench at 320x176
 CARTON_XY = {"carton_a": (0.22, -0.27), "carton_b": (0.28, -0.27), "carton_c": (0.34, -0.27)}
 CARTONS = tuple(CARTON_XY)
 
