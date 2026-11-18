@@ -60,6 +60,14 @@ OBJECTS = [
                      usd="assets/label/kit_card.usdc"),
     Box("tray", pos=(*TRAY, TOP + TRAY_SIZE[2] / 2), size=TRAY_SIZE, color=(0.25, 0.60, 0.30)),
     Box("mat", pos=(*MAT, TOP + MAT_SIZE[2] / 2), size=MAT_SIZE, color=(0.55, 0.65, 0.85)),
+    # yellow floor-marking tape on three sides of the finished kit (a marked hold area, as for a kit waiting for
+    # inspection; the far side is left open for the kit card), 2 cm wide, 1 cm outside the mat: ~4 px wide at
+    # the policy cameras' 320x176, where the card text is unreadable. Visual only (1 mm, flat, off every robot path).
+    *[Box(f"hold_tape_{n}", pos=(MAT[0] + dx, MAT[1] + dy, TOP + 0.0005), size=sz, color=(0.95, 0.80, 0.05))
+      for n, (dx, dy, sz) in enumerate((
+          (0.0, -(MAT_SIZE[1] / 2 + 0.02), (MAT_SIZE[0] + 0.06, 0.02, 0.001)),
+          (-(MAT_SIZE[0] / 2 + 0.02), 0.0, (0.02, MAT_SIZE[1] + 0.02, 0.001)),
+          (MAT_SIZE[0] / 2 + 0.02, 0.0, (0.02, MAT_SIZE[1] + 0.02, 0.001))))],
     Box("red_cube", pos=(*RED_START["red_cube"], TOP + CUBE[2] / 2 + 0.0005), size=CUBE, mass=CUBE_KG, color=RED),
     Cylinder("red_cylinder", pos=(*RED_START["red_cylinder"], TOP + CYL_H / 2 + 0.0005), radius=CYL_R, height=CYL_H,
              mass=CYL_KG, color=RED),
