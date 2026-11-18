@@ -70,6 +70,9 @@ TOPVIEW_HALF_WIDTH = 0.6
 
 GREY, DARK, WHITE = (0.80, 0.81, 0.82), (0.20, 0.22, 0.25), (0.96, 0.96, 0.95)
 CLEAR, SAMPLE, ARROW = (0.90, 0.95, 1.00), (0.85, 0.25, 0.45), (0.95, 0.55, 0.10)
+# Seen through a clear window the pink sample shows; the frosted sides are opaque white. That contrast is what
+# tells the two pairs of faces apart at the policy cameras' 320x176 (the cuvette is ~3x5 px in the top view).
+WINDOW_SAMPLE = (0.88, 0.40, 0.58)
 
 _hx, _hy, _hz = CUV[0] / 2, CUV[1] / 2, CUV[2] / 2
 CUVETTE = hhperson.TrimBox(
@@ -78,8 +81,10 @@ CUVETTE = hhperson.TrimBox(
     trim=(("frosted_py", (CUV[0], WIN, CUV[2]), (0.0, _hy - WIN / 2, 0.0), WHITE),
           ("frosted_ny", (CUV[0], WIN, CUV[2]), (0.0, -_hy + WIN / 2, 0.0), WHITE),
           ("sample", (CUV[0] - 2 * WIN - 0.002, CUV[1] - 2 * WIN - 0.002, FILL), (0.0, 0.0, -_hz + 0.001 + FILL / 2), SAMPLE),
-          ("clear_px", (WIN, CUV[1] - 2 * WIN, CUV[2]), (_hx - WIN / 2, 0.0, 0.0), CLEAR),
-          ("clear_nx", (WIN, CUV[1] - 2 * WIN, CUV[2]), (-_hx + WIN / 2, 0.0, 0.0), CLEAR)))
+          ("clear_px", (WIN, CUV[1] - 2 * WIN, FILL), (_hx - WIN / 2, 0.0, -_hz + FILL / 2), WINDOW_SAMPLE),
+          ("clear_px_top", (WIN, CUV[1] - 2 * WIN, CUV[2] - FILL), (_hx - WIN / 2, 0.0, _hz - (CUV[2] - FILL) / 2), CLEAR),
+          ("clear_nx", (WIN, CUV[1] - 2 * WIN, FILL), (-_hx + WIN / 2, 0.0, -_hz + FILL / 2), WINDOW_SAMPLE),
+          ("clear_nx_top", (WIN, CUV[1] - 2 * WIN, CUV[2] - FILL), (-_hx + WIN / 2, 0.0, _hz - (CUV[2] - FILL) / 2), CLEAR)))
 
 
 def _ring(prefix, outer, hole, height, z, colour):
@@ -134,10 +139,11 @@ SPEC = hhperson.CompoundBox(
     + (("display", (0.050, 0.120, 0.002), (0.040, 0.040, _TOPZ + 0.001), DARK),
        ("well_dark", (SLOT, SLOT, 0.001), (WELL_LOCAL[0], WELL_LOCAL[1], FLOOR_H / 2 + 0.0005), DARK),
        # the beam arrows, right to left, in front of and behind the well
-       ("arrow_front", (0.004, 0.050, 0.0015), (WELL_LOCAL[0] - 0.020, WELL_LOCAL[1], _TOPZ + 0.0008), ARROW),
-       ("arrow_back", (0.004, 0.050, 0.0015), (WELL_LOCAL[0] + 0.020, WELL_LOCAL[1], _TOPZ + 0.0008), ARROW),
-       ("arrowhead_front", (0.010, 0.006, 0.0015), (WELL_LOCAL[0] - 0.020, WELL_LOCAL[1] + 0.025, _TOPZ + 0.0008), ARROW),
-       ("arrowhead_back", (0.010, 0.006, 0.0015), (WELL_LOCAL[0] + 0.020, WELL_LOCAL[1] + 0.025, _TOPZ + 0.0008), ARROW)))
+       # (8 mm wide, 70 mm long with 18 x 14 mm heads: about 2 x 12 px each in the 320x176 top view)
+       ("arrow_front", (0.008, 0.070, 0.0015), (WELL_LOCAL[0] - 0.022, WELL_LOCAL[1], _TOPZ + 0.0008), ARROW),
+       ("arrow_back", (0.008, 0.070, 0.0015), (WELL_LOCAL[0] + 0.022, WELL_LOCAL[1], _TOPZ + 0.0008), ARROW),
+       ("arrowhead_front", (0.018, 0.014, 0.0015), (WELL_LOCAL[0] - 0.022, WELL_LOCAL[1] + 0.042, _TOPZ + 0.0008), ARROW),
+       ("arrowhead_back", (0.018, 0.014, 0.0015), (WELL_LOCAL[0] + 0.022, WELL_LOCAL[1] + 0.042, _TOPZ + 0.0008), ARROW)))
 
 OBJECTS = [SPEC, RACK, CUVETTE]
 
