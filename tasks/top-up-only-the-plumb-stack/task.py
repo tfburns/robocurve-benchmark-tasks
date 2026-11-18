@@ -48,7 +48,10 @@ TOTE_IN = (0.09, 0.17)  # interior; its far wall stands 3 cm in front of the sta
 TOTE_WALL, TOTE_H = 0.01, 0.04
 WALKWAY = (0.45, 0.0)
 WALKWAY_SIZE = (0.10, 0.60, 0.001)
-CARD, CARD_DARK = (0.72, 0.56, 0.38), (0.64, 0.49, 0.32)
+# the stacked boxes alternate white-printed and dark kraft board, layer by layer, in both stacks: each 1.1 cm
+# lean step then shows as a light/dark sliver (luminance about 0.86 vs 0.47) in the 320x176 top view, where
+# the old kraft/darker-kraft pair (0.59 vs 0.52) hardly showed; colours only, the stacks are unchanged
+CARD, CARD_DARK = (0.88, 0.86, 0.80), (0.60, 0.44, 0.27)
 
 
 def _layer_z(k: int) -> float:
