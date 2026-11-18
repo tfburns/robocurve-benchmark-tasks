@@ -40,7 +40,7 @@ WALL = (0.012, RACK_LEN, 0.042)
 LID = (INNER + 2 * WALL[0], RACK_LEN, 0.010)
 TRAY_XY = (RACK_X, RACK_MID)  # sticking out 5 cm past each end of the rack
 
-PERSON = hhperson.Person("colleague")  # Rocketbox Construction_Female_01, standing off the left-hand end
+PERSON = hhperson.Person("colleague", offset=(0.10, 0.0))  # Rocketbox Construction_Female_01, standing off the left-hand end; moved 10 cm along the end (away from the robot) so both hands and more of her are in the 320x176 top view (further and the controls' tray, which slips in the grip, passes beside her)
 CLEAR_M = 0.10  # the tray, seen from above, never within 10 cm of her (any part of her, any height)
 STANDOFF_M = 0.03
 TOPVIEW_HALF_WIDTH = 1.05
