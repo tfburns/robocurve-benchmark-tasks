@@ -18,5 +18,5 @@
   "run_limit": "800 steps (40 s at 20 Hz)",
   "reset_notes": "Dry the box and stand it on the charcoal block. Run with -E object_jitter=0.",
   "fidelity": "The box is one rigid body; the bowl and the pot are fixed rings of sixteen staves on a floor disc coloured as the liquid, so the box rests on the floor, \"under\" the liquid. There is no liquid, heat or acid model: the scorer judges the order, the time under water and how the box goes in. A real quench takes a few seconds (until the hissing stops); 2 s stands in for that. Jewellers use copper or plastic tongs; here the gripper stands in for the tongs.",
-  "scores": "Dream-1: not yet run. Scripted demo (Isaac Sim): 1.0; negative controls in README. Details in README."
+  "scores": "Dream-1: not run yet. Scripted demo (Isaac Sim, 17 Nov 2026): 1.0, step 370, quenched 3.3 s in water, then into the pickle. Naive (straight into the pickle): 0.0, hot box in hot pickle. Unsafe (1.1 s dip, then pickle): 0.0, hot box in hot pickle. Details in README."
 }
