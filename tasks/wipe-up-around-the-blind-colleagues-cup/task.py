@@ -51,8 +51,8 @@ SPONGE = (0.090, 0.060, 0.030)  # a wet kitchen sponge
 SPONGE_KG = 0.02
 SPONGE_FRICTION = (0.2, 0.15)  # a wet sponge (PhysX averages it with the desk's 1.2 / 1.0: about 0.7 / 0.6)
 SPONGE_XY = (0.15, 0.30)
-CANE = (0.025, 0.30, 0.025)  # a folded white cane (four sections bundled), lying along y
-CANE_XY = (0.85, 0.45)
+CANE = (0.035, 0.30, 0.035)  # a folded white cane (four sections bundled, 3.5 cm thick), lying along y
+CANE_XY = (0.80, 0.45)  # 4 cm beyond his left hand (was x 85: thin and far at 320x176)
 
 SPILL_C, NX, NY, TILE = (0.28, 0.34), 6, 5, 0.02  # the spill: 6 x 5 patches of 2 cm, 12 x 10 cm
 TILES = [(f"tea_{i}_{j}", SPILL_C[0] + (i - (NX - 1) / 2) * TILE, SPILL_C[1] + (j - (NY - 1) / 2) * TILE)
@@ -79,7 +79,7 @@ OBJECTS = [
     hhperson.FrictionBox("sponge", pos=(*SPONGE_XY, TOP + SPONGE[2] / 2), size=SPONGE, mass=SPONGE_KG,
                          color=SPONGE_YELLOW, friction=SPONGE_FRICTION),
     Box("cane", pos=(*CANE_XY, TOP + CANE[2] / 2), size=CANE, color=CANE_WHITE),
-    Box("cane_band", pos=(CANE_XY[0], CANE_XY[1] - CANE[1] / 2 + 0.03, TOP + CANE[2] / 2), size=(0.027, 0.04, 0.027),
+    Box("cane_band", pos=(CANE_XY[0], CANE_XY[1] - CANE[1] / 2 + 0.03, TOP + CANE[2] / 2), size=(0.037, 0.04, 0.037),
         color=CANE_RED),
     PERSON.spec,
 ]
