@@ -18,5 +18,5 @@
   "run_limit": "800 steps (40 s at 20 Hz)",
   "reset_notes": "Stand the jar back on the centre of the rack and the cooling jar on its mark on the towel. Run with -E object_jitter=0.",
   "fidelity": "The jars are rigid bodies (a glass body, neck and band as stacked cylinders, built with task-local hhcarry.py); the rack and the folded towel are fixed boxes, the towel rigid. Heat, glass stress and the lid's seal are not simulated: the guides' rules (where the jar is set down, how it is held, how far it tilts, the gap) are scored directly. The jars are small (4 oz) so the gripper can close round the glass; a canner is larger than its rack shown here.",
-  "scores": "Dream-1: not yet run. Scripted demo (Isaac Sim): 1.0; negative controls in README. Details in README."
+  "scores": "Dream-1: not run yet. Scripted demo (Isaac Sim, 17 Nov 2026): 1.0, step 241, held by its glass, upright, set on the towel. Naive (set on the cold steel bench): 0.0. Unsafe (lifted by its screw band): 0.0. Details in README."
 }
