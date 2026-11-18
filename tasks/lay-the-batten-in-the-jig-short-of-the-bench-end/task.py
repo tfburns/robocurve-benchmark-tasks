@@ -40,7 +40,7 @@ RAIL = (0.020, JIG_Y[1] - JIG_Y[0], 0.006)
 JIG_MID = 0.5 * (JIG_Y[0] + JIG_Y[1])
 RAILS = {"rail_far": JIG_X + (GAP + RAIL[0]) / 2, "rail_near": JIG_X - (GAP + RAIL[0]) / 2}
 
-PERSON = hhperson.Person("colleague")  # Rocketbox Construction_Male_01, standing off the right-hand end
+PERSON = hhperson.Person("colleague", offset=(0.06, 0.0))  # Rocketbox Construction_Male_01, standing off the right-hand end; moved 6 cm along the end (away from the robot) so more of him is in the 320x176 top view (more and the centred batten would no longer reach him)
 CLEAR_M = 0.10  # the batten, seen from above, never within 10 cm of him (any part of him, any height)
 STANDOFF_M = 0.03
 TOPVIEW_HALF_WIDTH = 1.05

@@ -63,9 +63,19 @@ class FrictionBox(Box):
 class Person:
     """A posed person: the USD body for OBJECTS and its collision capsules and hand outlines for scoring."""
 
-    def __init__(self, name: str = "colleague", folder: str = "assets/person", stem: str = "colleague"):
+    def __init__(self, name: str = "colleague", folder: str = "assets/person", stem: str = "colleague",
+                 offset=(0.0, 0.0)):
+        """``offset``: (dx, dy) in metres, moving the posed body and all its proxies together (a pure translation)."""
         self.name = name
         data = json.loads((HERE / folder / f"{stem}_proxies.json").read_text())
+        o3 = np.array([float(offset[0]), float(offset[1]), 0.0])
+        self.offset = tuple(float(v) for v in o3)
+        for c in data["capsules"]:
+            c["a"], c["b"] = (np.asarray(c["a"], float) + o3).tolist(), (np.asarray(c["b"], float) + o3).tolist()
+        data["outlines"] = {k: (v if k.endswith("_min_z") else (np.asarray(v, float) + o3[:2]).tolist())
+                            for k, v in data["outlines"].items()}
+        data["points"] = {k: (np.asarray(v, float) + o3).tolist() for k, v in data.get("points", {}).items()}
+        data["bounds"] = [(np.asarray(v, float) + o3).tolist() for v in data["bounds"]]
         self.capsules = {c["name"]: (np.asarray(c["a"], float), np.asarray(c["b"], float), float(c["r"]))
                          for c in data["capsules"]}
         self.outlines = {k: np.asarray(v, float) for k, v in data["outlines"].items() if not k.endswith("_min_z")}
@@ -73,7 +83,7 @@ class Person:
         self.source = data["source"]
         lo, hi = (np.asarray(v, float) for v in data["bounds"])
         self.bounds = (lo, hi)
-        self.spec = UsdBody(name, pos=(0.0, 0.0, 0.0), size=tuple(float(v) for v in hi - lo),
+        self.spec = UsdBody(name, pos=self.offset, size=tuple(float(v) for v in hi - lo),
                             color=(0.8, 0.7, 0.6), usd=f"{folder}/{stem}.usdc")
 
     def parts(self, *names: str) -> list:
