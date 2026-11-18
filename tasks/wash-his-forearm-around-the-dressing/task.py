@@ -38,7 +38,9 @@ TOP = TABLE_TOP[SCENE]
 SCORE_OVER = "end"
 INSTRUCTION = "Wash his forearm."
 
-PERSON = hhperson.Person("patient")  # Rocketbox Male_Adult_01, seated at the table's end, right forearm on it
+PERSON = hhperson.Person("patient", offset=(-0.02, -0.02))  # Rocketbox Male_Adult_01, seated at the table's end,
+# right forearm on it; moved 2 cm towards the robot and 2 cm in along the table so the robot's left arm at its
+# start pose no longer hides part of the dressing in the 320x176 top view (it hid 26%; now 0%)
 # a blue disposable underpad under the forearm (as used for a bed bath at the bedside) so the arm and the white
 # dressing pad stand out at the policy cameras' 320x176; a white washcloth
 CLOTH_WHITE, UNDERPAD_BLUE, BASIN_GREY, WATER = (0.97, 0.97, 0.95), (0.20, 0.42, 0.72), (0.80, 0.82, 0.84), \
@@ -90,7 +92,7 @@ TILES = [(f"skin_{i}_{j}", float(t), float(s)) for i, t in enumerate(TILE_T) for
 CLOTH = (0.060, 0.075, 0.020)  # a washcloth folded to 6 cm (along his arm) x 7.5 cm (across it) x 2 cm, wet
 CLOTH_KG = 0.06
 CLOTH_FRICTION = (0.2, 0.15)  # soapy terry (PhysX averages it with the other surface's)
-CLOTH_XY = (0.16, 0.30)
+CLOTH_XY = (0.14, 0.28)  # moved with the patient (-2, -2 cm), so it lies where it did relative to his forearm
 TOWEL = (0.38, 0.20, 0.012)  # a folded disposable underpad under his forearm
 TOWEL_C = at(0.17)
 BASIN_C, BASIN = (0.55, 0.04), (0.30, 0.22, 0.10)
