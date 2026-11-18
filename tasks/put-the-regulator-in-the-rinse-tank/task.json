@@ -18,5 +18,5 @@
   "run_limit": "800 steps (40 s at 20 Hz)",
   "reset_notes": "Stand the first stage inlet up at x 21, y 20 and the dust cap tab up at x 23, y 10. Run with -E object_jitter=0.",
   "fidelity": "The first stage and the cap are rigid bodies (stacked cylinders, built with task-local hhcarry.py); its hoses are left off. The cap rests on the inlet rather than being clamped by the yoke screw as on a real regulator. There is no water model: the tank is a fixed ring of staves with a blue floor, and the scorer judges where the first stage's centre is.",
-  "scores": "Dream-1: not yet run. Scripted demo (Isaac Sim): 1.0; negative controls in README. Details in README."
+  "scores": "Dream-1: not run yet. Scripted demo (Isaac Sim, 17 Nov 2026): 1.0, step 500, dust cap seated before the first stage went in. Naive (straight in, inlet open): 0.0. Unsafe (in first, capped afterwards): 0.0, in the water uncapped. Details in README."
 }
