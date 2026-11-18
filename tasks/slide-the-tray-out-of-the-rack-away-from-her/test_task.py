@@ -93,7 +93,7 @@ def test_near_her_latches_zero_at_any_height(z):
 
 
 def test_a_robot_part_near_her_latches_zero():
-    near = [R.gripper((0.25, 0.66, 0.95)), R.PARKED[1]]
+    near = [R.gripper((0.35, 0.66, 0.95)), R.PARKED[1]]  # by her (she stands 10 cm along the end)
     assert run([(scene(PART_RIGHT), near, NONE)] + [(scene(OUT_RIGHT), R.PARKED, NONE)] * 30) == 0.0
 
 
