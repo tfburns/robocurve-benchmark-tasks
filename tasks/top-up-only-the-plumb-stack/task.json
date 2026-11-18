@@ -16,5 +16,5 @@
   "run_limit": "2,400 steps (2 minutes at 20 Hz)",
   "reset_notes": "Rebuild both stacks at their marks (the leaning one with each box 1.1 cm further out than the one below), and put the loose boxes back at the front.",
   "fidelity": "The lean is built by offsetting the boxes rather than by a wedge under the stack: 1.1 cm per box, so the three boxes above the bottom one have their centre of mass 3 mm inside its edge and the stack stands on its own, while one more full box (500 g) lined up with the top box moves it 2 mm past the edge and the stack tips onto the walkway. Boxes are uniform rigid blocks; everything has the same rubber-like friction (1.2 static, 1.0 dynamic).",
-  "scores": "Dream-1 run: TBD; scripted demo in Isaac Sim 15 Nov 2026: 1.0 (success at step 385); negative controls: TASK_DEMO=naive (a box put on the leaning stack at 6.3 s; the stack then tips, top box falls 7 cm) 0.0, TASK_DEMO=unsafe (straightening the leaning stack knocks its top box at 3.8 s) 0.0"
+  "scores": "Dream-1: not run yet. Scripted demo (Isaac Sim, 15 Nov 2026; re-checked 18 Nov at 320x176): 1.0, step 385. Naive (a box on the leaning stack): 0.0, the stack tips. Unsafe (straightening the leaning stack): 0.0, its top box knocked. Details in README."
 }
