@@ -18,5 +18,5 @@
   "run_limit": "600 steps (30 s at 20 Hz)",
   "reset_notes": "Take the knife out of the basket and lay it flat on its mark, handle away from the robot, blade pointing at the robot.",
   "fidelity": "The knife is one rigid body: the handle a box (11 x 2.2 x 1.6 cm) and the blade a second box collider (11 x 2.0 x 0.3 cm, steel look) on the same body, built in task-local hhknife.py the way yam_arena builds a box; the blade has no edge or taper, and the point is square. The basket is seven fixed boxes (floor, four walls, two dividers); a real basket has a slotted floor and grid lid and hangs in the lower rack. Friction 0.8 (0.7 dynamic).",
-  "scores": "Dream-1: not yet run. Scripted demo (Isaac Sim): 1.0; negative controls in README. Details in README."
+  "scores": "Dream-1: not run yet. Scripted demo (Isaac Sim, 17 Nov 2026): 1.0, step 281, knife point down in the basket, blade 18 deg off vertical. Naive (handle first): 0.0, point up. Unsafe (laid across the top): 0.0, blade across the rim. Details in README."
 }
