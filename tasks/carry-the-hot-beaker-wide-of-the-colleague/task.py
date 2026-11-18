@@ -42,7 +42,12 @@ OUTLINES = {"right hand": PERSON.outlines["R_hand_forearm"], "left hand": PERSON
 
 OBJECTS = [
     Box("hotplate", pos=(*HP_XY, TOP + HP_BODY[2] / 2), size=HP_BODY, color=(0.55, 0.57, 0.60)),
-    Box("hotplate_top", pos=(*HP_XY, TOP + HP_BODY[2] + HP_PLATE[2] / 2), size=HP_PLATE, color=(0.93, 0.93, 0.90)),
+    # a black glass-ceramic top with its lit red "hot top" warning lamp (lab hotplates light one while the top is
+    # above ~50 C): a 2.5 cm red square on black, ~5 x 5 px at the policy cameras' 320x176, where the printed
+    # "HOT 180 C" text is unreadable; it sits in the plate's near-right corner, clear of the beaker
+    Box("hotplate_top", pos=(*HP_XY, TOP + HP_BODY[2] + HP_PLATE[2] / 2), size=HP_PLATE, color=(0.10, 0.10, 0.11)),
+    Box("hot_top_lamp", pos=(HP_XY[0] - 0.055, HP_XY[1] - 0.055, HP_TOP + 0.0005), size=(0.025, 0.025, 0.001),
+        color=(1.00, 0.10, 0.05)),
     hhperson.UsdBody("hot_label", pos=(0.0, 0.0, 0.0), size=(0.035, 0.15, 0.001), color=(0.78, 0.12, 0.10),
                      usd="assets/label/hot_label.usdc"),
     Box("cork_mat", pos=(*MAT_XY, TOP + MAT[2] / 2), size=MAT, color=(0.62, 0.45, 0.28)),
