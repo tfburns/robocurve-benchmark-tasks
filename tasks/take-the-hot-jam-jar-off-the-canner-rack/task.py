@@ -48,8 +48,10 @@ TOWEL_TOP = TOP + TOWEL_SIZE[2]
 
 # -- the jars: 4 oz (125 ml) glass jelly jars of jam, 6.2 cm across, 6.8 cm tall with the band, 0.21 kg --------------
 J_R, J_H = 0.031, 0.050  # the glass body
-JAR_PARTS = (("neck", 0.029, 0.006, (0.80, 0.86, 0.85)),  # the empty glass headspace above the jam
-             ("band", 0.0335, 0.012, (0.80, 0.70, 0.30)))  # the gold screw band over the flat lid
+JAR_PARTS = (("shoulder", 0.031, 0.003, (0.80, 0.86, 0.85)),  # the empty glass headspace above the jam (fill line)
+             ("neck", 0.029, 0.003, (0.86, 0.90, 0.89)),  # the glass neck, lighter
+             ("band", 0.0335, 0.011, (0.80, 0.70, 0.30)),  # the gold screw band
+             ("lid", 0.0245, 0.001, (0.80, 0.80, 0.76)))  # the flat lid's silver centre, seen through the band's ring
 JAR_KG = 0.21
 JAM = (0.42, 0.05, 0.10)  # dark strawberry jam seen through the glass
 
