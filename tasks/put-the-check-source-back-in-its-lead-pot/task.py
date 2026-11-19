@@ -43,7 +43,7 @@ HAND = np.array([0.33, 0.37])  # his right hand on the bench (the end of his for
 # -- the source: a sealed check source in a 1.8 cm aluminium holder, 6.5 cm long, 50 g, standing on its end ----------
 S_R, S_H = 0.009, 0.065
 S_XY = (0.19, 0.26)
-SOURCE = Cylinder("source", pos=(*S_XY, TOP + S_H / 2), mass=0.05, color=(0.72, 0.73, 0.75), radius=S_R, height=S_H)
+SOURCE = Cylinder("source", pos=(*S_XY, TOP + S_H / 2), mass=0.05, color=(0.95, 0.78, 0.10), radius=S_R, height=S_H)
 
 # -- the pot: a lead storage pot, 8 cm across, 8.5 cm tall, a 4.4 cm bore 7.3 cm deep; fixed to the bench ------------
 P_XY = (0.33, 0.16)
