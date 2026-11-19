@@ -28,7 +28,7 @@ TOP = TABLE_TOP[SCENE]
 SCORE_OVER = "end"
 INSTRUCTION = "Move the beaker from the hotplate to the cork mat."
 
-HP_XY, HP_BODY, HP_PLATE = (0.20, 0.40), (0.17, 0.17, 0.025), (0.15, 0.15, 0.005)  # hotplate: steel body, ceramic top
+HP_XY, HP_BODY, HP_PLATE = (0.20, 0.36), (0.17, 0.17, 0.025), (0.15, 0.15, 0.005)  # hotplate: steel body, ceramic top
 HP_TOP = TOP + HP_BODY[2] + HP_PLATE[2]
 LABEL_X = 0.0925  # the printed strip in front of it (x 7.5 to 11, y 32.5 to 47.5 cm)
 MAT_XY, MAT = (0.22, -0.04), (0.14, 0.14, 0.01)  # cork ring mat
