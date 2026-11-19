@@ -36,7 +36,22 @@ TOP = TABLE_TOP[SCENE]
 SCORE_OVER = "end"
 INSTRUCTION = "Put the ice pack on his wrist."
 
+def _shift_person(p, d):
+    """Stage 8: move the posed person (its USD body, collision capsules, hand outlines and skin samples) by d = (dx, dy)
+    on the table, so the arms' start pose no longer hides the part the task is about. Nothing else about him changes."""
+    import dataclasses
+    d3 = np.array([float(d[0]), float(d[1]), 0.0])
+    p.capsules = {k: (a + d3, b + d3, r) for k, (a, b, r) in p.capsules.items()}
+    p.outlines = {k: v + d3[:v.shape[-1]] for k, v in p.outlines.items()}
+    p.points = {k: v + d3[:v.shape[-1]] for k, v in p.points.items()}
+    p.bounds = (p.bounds[0] + d3, p.bounds[1] + d3)
+    p.spec = dataclasses.replace(p.spec, pos=(float(d[0]), float(d[1]), 0.0))
+    return p
+
+
 PERSON = hhperson.Person("player")  # Rocketbox Sports_Male_02 (football kit), seated at the table's end
+PERSON_SHIFT = (0.0, -0.04)  # stage 8: 4 cm toward the table's middle, so the start pose no longer hides his forearm (46% -> 32%) and hand (4% -> 0%); his chest stays clear of the table end at 320x176
+_shift_person(PERSON, PERSON_SHIFT)
 PACK_BLUE, TOWEL_WHITE = (0.62, 0.80, 0.93), (0.93, 0.93, 0.90)
 
 # His right forearm (its collider capsule): elbow end A, wrist end B; t along it from the elbow, s across it.
@@ -133,6 +148,7 @@ def underside_gaps(s, size, pts) -> np.ndarray:
 _PROX = json.loads((pathlib.Path(__file__).resolve().parent / "assets/person/colleague_proxies.json").read_text())
 _HAND = next(b for b in _PROX["boxes"] if b["name"] == "R_hand")
 HAND_C, HAND_R, HAND_S = (np.asarray(_HAND[k], float) for k in ("center", "rot", "size"))
+HAND_C = HAND_C + np.array([*PERSON_SHIFT, 0.0])  # the proxies file is in the unshifted frame
 _GRID = np.array([(u, v, -0.5) for u in np.linspace(-0.5, 0.5, 27) for v in np.linspace(-0.5, 0.5, 16)])  # 5 mm apart
 
 
