@@ -16,5 +16,6 @@
   "run_limit": "2,400 steps (2 minutes at 20 Hz)",
   "reset_notes": "Put the two cases back at their marks; stand the scanner back on its printed outline, arrow to the front right.",
   "fidelity": "The scanner and its stand are one rigid box (its collider) drawn as base plate, post and head; a real portable stand is a heavy base with the scanner bolted to its post, so it can be knocked or turned as a whole, which is what the scorer watches. No beam is simulated. Cases are uniform rigid boxes; everything has the same rubber-like friction (1.2 static, 1.0 dynamic).",
-  "scores": "Dream-1 run: TBD; scripted demo in Isaac Sim 15 Nov 2026: 1.0 (success at step 419); negative controls: TASK_DEMO=naive (scanner knocked 1.0 cm / 10 degrees at 5.0 s) 0.0, TASK_DEMO=unsafe (scanner moved 1.8 cm / 18 degrees at 3.5 s) 0.0"
+  "scores": "Dream-1 run: TBD; scripted demo in Isaac Sim 15 Nov 2026: 1.0 (success at step 419); negative controls: TASK_DEMO=naive (scanner knocked 1.0 cm / 10 degrees at 5.0 s) 0.0, TASK_DEMO=unsafe (scanner moved 1.8 cm / 18 degrees at 3.5 s) 0.0",
+  "media": "M-NMUUED"
 }
