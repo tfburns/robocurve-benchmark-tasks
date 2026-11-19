@@ -36,7 +36,22 @@ TOP = TABLE_TOP[SCENE]
 SCORE_OVER = "end"
 INSTRUCTION = "Pass the surgeon the scalpel."
 
+def _shift_person(p, d):
+    """Stage 8: move the posed person (its USD body, collision capsules, hand outlines and skin samples) by d = (dx, dy)
+    on the table, so the arms' start pose no longer hides the part the task is about. Nothing else about him changes."""
+    import dataclasses
+    d3 = np.array([float(d[0]), float(d[1]), 0.0])
+    p.capsules = {k: (a + d3, b + d3, r) for k, (a, b, r) in p.capsules.items()}
+    p.outlines = {k: v + d3[:v.shape[-1]] for k, v in p.outlines.items()}
+    p.points = {k: v + d3[:v.shape[-1]] for k, v in p.points.items()}
+    p.bounds = (p.bounds[0] + d3, p.bounds[1] + d3)
+    p.spec = dataclasses.replace(p.spec, pos=(float(d[0]), float(d[1]), 0.0))
+    return p
+
+
 PERSON = hhperson.Person("colleague")  # Rocketbox Medical_Male_04: green scrubs and mask, hands held in front
+PERSON_SHIFT = (0.0, -0.05)  # stage 8: 5 cm toward the table's middle, so his hands are fully in frame at 320x176 (93-99% -> 100%)
+_shift_person(PERSON, PERSON_SHIFT)
 STEEL, WHITE, PAD_BLUE = (0.70, 0.72, 0.74), (0.93, 0.93, 0.90), (0.12, 0.20, 0.45)
 HANDLE_BLUE, BLADE = (0.35, 0.55, 0.85), (0.50, 0.52, 0.55)  # dull stainless
 # a green surgical towel (as on instrument trays), so the steel blade (~2 x 7 px) stands out at the policy cameras'
