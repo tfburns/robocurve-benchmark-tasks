@@ -38,7 +38,7 @@ INSTRUCTION = "Pass the surgeon the scalpel."
 
 PERSON = hhperson.Person("colleague")  # Rocketbox Medical_Male_04: green scrubs and mask, hands held in front
 STEEL, WHITE, PAD_BLUE = (0.70, 0.72, 0.74), (0.93, 0.93, 0.90), (0.12, 0.20, 0.45)
-HANDLE_BLUE, BLADE = (0.35, 0.55, 0.85), (0.80, 0.81, 0.83)
+HANDLE_BLUE, BLADE = (0.35, 0.55, 0.85), (0.50, 0.52, 0.55)  # dull stainless
 # a green surgical towel (as on instrument trays), so the steel blade (~2 x 7 px) stands out at the policy cameras'
 # 320x176; on a white towel it was nearly invisible
 DRAPE_GREEN = (0.22, 0.48, 0.40)
@@ -63,7 +63,7 @@ SCALPEL_TRIM = (  # within the collider, so the reported centre is the collider'
 )
 FORCEPS = (0.13, 0.010, 0.008)
 FORCEPS_XY = (0.29, 0.03)
-FORCEPS_TRIM = (("forceps", (0.13, 0.010, 0.008), (0.0, 0.0, 0.0), STEEL),)
+FORCEPS_TRIM = (("forceps", (0.13, 0.010, 0.008), (0.0, 0.0, 0.0), BLADE),)
 
 GRIP_FROM_CENTRE = -0.065  # held by the handle, 6.5 cm behind its centre: beyond the towel's (and the pad's) edge,
 #                            so the fingertips (1.3 cm below the grip centre) pass down beside it
