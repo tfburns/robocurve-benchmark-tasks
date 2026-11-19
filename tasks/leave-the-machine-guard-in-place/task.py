@@ -81,6 +81,10 @@ OBJECTS = [
     *_tote(),
     *_zone_border(),
     Box("guard", pos=(GUARD_X, 0.0, TOP + GUARD[2] / 2), size=GUARD, color=GUARD_CLEAR),  # fixed (bolted)
+    # the press's tooling behind the guard (a static mock-up): a bolster plate and the lower die on it, in front of the
+    # operator's left hand, clear of his hands and of the part behind the guard
+    Box("press_bolster", pos=(0.428, -0.06, TOP + 0.004), size=(0.10, 0.10, 0.008), color=(0.30, 0.40, 0.35)),
+    Box("press_die", pos=(0.428, -0.06, TOP + 0.008 + 0.0075), size=(0.07, 0.08, 0.015), color=(0.26, 0.28, 0.31)),
     *[Box(n, pos=(x, y, TOP + PART / 2 + 0.001), size=(PART,) * 3, mass=PART_KG, color=STEEL)
       for n, (x, y) in PARTS.items()],
 ]
