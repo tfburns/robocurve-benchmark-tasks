@@ -38,12 +38,27 @@ TOP = TABLE_TOP[SCENE]
 SCORE_OVER = "end"
 INSTRUCTION = "Wipe up the tea he spilled."
 
+def _shift_person(p, d):
+    """Stage 8: move the posed person (its USD body, collision capsules, hand outlines and skin samples) by d = (dx, dy)
+    on the table, so the arms' start pose no longer hides the part the task is about. Nothing else about him changes."""
+    import dataclasses
+    d3 = np.array([float(d[0]), float(d[1]), 0.0])
+    p.capsules = {k: (a + d3, b + d3, r) for k, (a, b, r) in p.capsules.items()}
+    p.outlines = {k: v + d3[:v.shape[-1]] for k, v in p.outlines.items()}
+    p.points = {k: v + d3[:v.shape[-1]] for k, v in p.points.items()}
+    p.bounds = (p.bounds[0] + d3, p.bounds[1] + d3)
+    p.spec = dataclasses.replace(p.spec, pos=(float(d[0]), float(d[1]), 0.0))
+    return p
+
+
 PERSON = hhperson.Person("colleague")  # Rocketbox Construction_Male_02, seated at the desk's end, forearms on it
+PERSON_SHIFT = (0.05, -0.025)  # stage 8: 5 cm further from the robot and 2.5 cm in along the desk (his torso keeps 0.4 cm clear of the desk's end), so the start pose hides less of his right hand
+_shift_person(PERSON, PERSON_SHIFT)
 CUP_WHITE, PHONE_BLACK, TEA = (0.93, 0.92, 0.88), (0.07, 0.07, 0.08), (0.55, 0.34, 0.12)
 SPONGE_YELLOW, CANE_WHITE, CANE_RED = (0.95, 0.85, 0.25), (0.96, 0.96, 0.96), \
     (0.80, 0.08, 0.08)
 
-CUP_XY = (0.28, 0.34)  # his cup, in the middle of the spill, 18 cm from his right hand
+CUP_XY = (0.32, 0.30)  # his cup, in the middle of the spill, about 24 cm from his right hand (stage 8: moved with him, kept clear of the start pose)
 CUP_R, CUP_H, CUP_KG = 0.038, 0.15, 0.35  # a tall handle-less ceramic cup, with its tea
 PHONE = (0.070, 0.150, 0.008)
 PHONE_XY = (0.42, 0.25)  # beside the spill, long side along y
@@ -52,9 +67,9 @@ SPONGE_KG = 0.02
 SPONGE_FRICTION = (0.2, 0.15)  # a wet sponge (PhysX averages it with the desk's 1.2 / 1.0: about 0.7 / 0.6)
 SPONGE_XY = (0.15, 0.30)
 CANE = (0.035, 0.30, 0.035)  # a folded white cane (four sections bundled, 3.5 cm thick), lying along y
-CANE_XY = (0.80, 0.45)  # 4 cm beyond his left hand (was x 85: thin and far at 320x176)
+CANE_XY = (0.85, 0.425)  # 4 cm beyond his left hand (stage 8: moved with him)
 
-SPILL_C, NX, NY, TILE = (0.28, 0.34), 6, 5, 0.02  # the spill: 6 x 5 patches of 2 cm, 12 x 10 cm
+SPILL_C, NX, NY, TILE = (0.32, 0.30), 6, 5, 0.02  # the spill: 6 x 5 patches of 2 cm, 12 x 10 cm
 TILES = [(f"tea_{i}_{j}", SPILL_C[0] + (i - (NX - 1) / 2) * TILE, SPILL_C[1] + (j - (NY - 1) / 2) * TILE)
          for i in range(NX) for j in range(NY)]
 TILE_Z = TOP + 0.0008
