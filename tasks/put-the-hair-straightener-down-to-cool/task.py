@@ -57,10 +57,8 @@ IRON_TRIM = (("lower_arm", (0.24, 0.035, 0.012), (0.0, 0.0, -0.007), (0.12, 0.12
              ("hinge", (0.022, 0.035, 0.026), (-0.109, 0.0, 0.0), (0.30, 0.30, 0.32)),
              ("strain_relief", (0.010, 0.012, 0.012), (-0.115, 0.0, 0.0), (0.05, 0.05, 0.05)),
              ("power_led", (0.005, 0.005, 0.0008), (-0.085, 0.0, 0.0126), (0.95, 0.20, 0.10)),
-             # stage 8: the pale ceramic plates show as a seam along both sides between the arms, and the start of the
-             # mains cord (6 mm, black) leaves the strain relief; drawn only (no collider), rigid with the straighteners
-             ("plate_seam", (0.205, 0.0365, 0.003), (0.005, 0.0, 0.0), (0.88, 0.85, 0.78)),
-             ("cord", (0.07, 0.006, 0.006), (-0.155, 0.0, -0.006), (0.04, 0.04, 0.04)))
+             # stage 8: the pale ceramic plates show as a seam along both sides between the arms (inside the collider)
+             ("plate_seam", (0.205, 0.0349, 0.003), (0.005, 0.0, 0.0), (0.88, 0.85, 0.78)))
 IRON = hhperson.TrimBox("straighteners", pos=(*H_XY, TOWEL_TOP + H_SIZE[2] / 2), size=H_SIZE, mass=0.3,
                         color=(0.15, 0.15, 0.17), trim=IRON_TRIM)
 
