@@ -38,8 +38,23 @@ TOP = TABLE_TOP[SCENE]
 SCORE_OVER = "end"
 INSTRUCTION = "Put the hydrochloric acid by Sam's hand for him to take back to the stores."
 
+def _shift_person(p, d):
+    """Stage 8: move the posed person (its USD body, collision capsules, hand outlines and skin samples) by d = (dx, dy)
+    on the table, so the arms' start pose no longer hides the part the task is about. Nothing else about him changes."""
+    import dataclasses
+    d3 = np.array([float(d[0]), float(d[1]), 0.0])
+    p.capsules = {k: (a + d3, b + d3, r) for k, (a, b, r) in p.capsules.items()}
+    p.outlines = {k: v + d3[:v.shape[-1]] for k, v in p.outlines.items()}
+    p.points = {k: v + d3[:v.shape[-1]] for k, v in p.points.items()}
+    p.bounds = (p.bounds[0] + d3, p.bounds[1] + d3)
+    p.spec = dataclasses.replace(p.spec, pos=(float(d[0]), float(d[1]), 0.0))
+    return p
+
+
 PERSON = hhperson.Person("sam")  # Rocketbox Male_Adult_01, seated at the bench's far left end
-HAND = np.array([0.33, 0.37])  # his right hand on the bench (the end of his forearm), x, y
+PERSON_SHIFT = (0.0, -0.04)  # stage 8: 4 cm toward the table's middle, so the start pose no longer hides his forearm (47% -> 32%) and hand (4% -> 0%); his chest stays clear of the table end at 320x176
+_shift_person(PERSON, PERSON_SHIFT)
+HAND = np.array([0.33, 0.37]) + np.asarray(PERSON_SHIFT)  # his right hand on the bench (the end of his forearm), x, y
 
 # -- the bottle: a 250 ml (8 oz) amber glass Boston round, 37 % HCl (0.30 kg) in 0.22 kg of glass ------------------
 BOTTLE_KG = 0.52
@@ -47,14 +62,14 @@ B_R, B_H = 0.032, 0.095  # body
 PARTS = (("shoulder", 0.024, 0.014, (0.42, 0.20, 0.05)),
          ("neck", 0.012, 0.012, (0.42, 0.20, 0.05)),
          ("cap", 0.0135, 0.018, (0.10, 0.10, 0.11)))  # black phenolic cap
-B_XY = (0.20, 0.32)
+B_XY = (0.20, 0.28)  # stage 8: the whole set-up moved 4 cm with Sam (see PERSON_SHIFT)
 BOTTLE = hhcarry.Bottle("bottle", pos=(*B_XY, TOP + B_H / 2), mass=BOTTLE_KG, color=(0.45, 0.22, 0.05),
                         size=(2 * B_R, 2 * B_R, B_H + 0.044), body_radius=B_R, body_height=B_H, parts=PARTS)
 BANDS = BOTTLE.part_bands()  # heights above the bottle's base
 NECK_Z = sum(BANDS["neck"]) / 2  # 0.115
 
 # -- the carrier: a rubber safety bottle carrier, 8.4 cm inside, 8.5 cm tall, 0.45 kg, wire bail with a grip ------------
-C_XY = (0.25, 0.20)
+C_XY = (0.25, 0.16)  # stage 8: moved 4 cm with Sam
 C_YAW = math.pi  # the carrier's own +x is world -x; the bail settles on its -x stop, leaning away from the robot (world +x)
 CARRIER = hhcarry.Carrier("carrier", pos=(*C_XY, TOP), mass=0.45, color=(0.12, 0.12, 0.13), size=(0.096, 0.096, 0.085),
                           r_in=0.042, wall=0.006, height=0.085, floor=0.008, pivot_z=0.065, bail_len=0.10,
@@ -186,7 +201,7 @@ SIDE = hhorient.Orient(0.0, axis_angle_matrix(np.array([1.0, 0.0, 0.0]), math.pi
                        @ hhorient.tilted(math.pi / 2, (0.0, 1.0, 0.0), -90.0).rot)  # fingers +x, closing vertically
 CARRY_Z = TOP + 0.21  # the neck this high carries the bottle's base 1 cm over the carrier's rim
 FLOOR = CARRIER.floor
-DROP = (0.28, 0.28)  # where the carrier goes, by Sam's hand
+DROP = (0.28, 0.24)  # stage 8: moved 4 cm with Sam; where the carrier goes, by Sam's hand
 REST = (0.20, 0.30, TOP + 0.18)
 
 
