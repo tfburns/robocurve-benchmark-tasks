@@ -29,6 +29,7 @@ from yam_arena.task_file import TABLE_TOP, Box  # noqa: E402
 
 import hhdebug  # noqa: E402
 import hhkit  # noqa: E402
+import hhperson  # noqa: E402  (TrimBox: a loose box drawn as visual parts)
 
 SCENE = "station"
 TOP = TABLE_TOP[SCENE]
@@ -47,7 +48,17 @@ SLABS = [Box("folded_towel", pos=(*TOWEL_XY, TOP + TOWEL_SIZE[2] / 2), size=TOWE
 # -- the straighteners: closed, 24 cm long, 3.5 cm wide, 2.6 cm thick; 0.3 kg; lying along x on the towel -----------
 H_SIZE = (0.24, 0.035, 0.026)
 H_XY = TOWEL_XY
-IRON = Box("straighteners", pos=(*H_XY, TOWEL_TOP + H_SIZE[2] / 2), size=H_SIZE, mass=0.3, color=(0.15, 0.15, 0.17))
+# drawn as two hinged arms (the upper one 1.5 cm shorter, so the lower arm's ceramic plate shows at the tip), the
+# hinge block with the cord's strain relief at the -x end, and the power LED; all within the collider, so scoring is
+# unchanged (it treats it as the plain box)
+IRON_TRIM = (("lower_arm", (0.24, 0.035, 0.012), (0.0, 0.0, -0.007), (0.12, 0.12, 0.13)),
+             ("upper_arm", (0.225, 0.033, 0.012), (-0.0075, 0.0, 0.007), (0.22, 0.17, 0.24)),
+             ("plate_tip", (0.015, 0.029, 0.002), (0.1125, 0.0, 0.0), (0.78, 0.76, 0.72)),
+             ("hinge", (0.022, 0.035, 0.026), (-0.109, 0.0, 0.0), (0.30, 0.30, 0.32)),
+             ("strain_relief", (0.010, 0.012, 0.012), (-0.115, 0.0, 0.0), (0.05, 0.05, 0.05)),
+             ("power_led", (0.005, 0.005, 0.0008), (-0.085, 0.0, 0.0126), (0.95, 0.20, 0.10)))
+IRON = hhperson.TrimBox("straighteners", pos=(*H_XY, TOWEL_TOP + H_SIZE[2] / 2), size=H_SIZE, mass=0.3,
+                        color=(0.15, 0.15, 0.17), trim=IRON_TRIM)
 
 OBJECTS = [*SLABS, IRON]
 
