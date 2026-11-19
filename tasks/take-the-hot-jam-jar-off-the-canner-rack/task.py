@@ -48,10 +48,10 @@ TOWEL_TOP = TOP + TOWEL_SIZE[2]
 
 # -- the jars: 4 oz (125 ml) glass jelly jars of jam, 6.2 cm across, 6.8 cm tall with the band, 0.21 kg --------------
 J_R, J_H = 0.031, 0.050  # the glass body
-JAR_PARTS = (("neck", 0.029, 0.006, (0.45, 0.10, 0.12)),
+JAR_PARTS = (("neck", 0.029, 0.006, (0.80, 0.86, 0.85)),  # the empty glass headspace above the jam
              ("band", 0.0335, 0.012, (0.80, 0.70, 0.30)))  # the gold screw band over the flat lid
 JAR_KG = 0.21
-JAM = (0.50, 0.08, 0.12)
+JAM = (0.42, 0.05, 0.10)  # dark strawberry jam seen through the glass
 
 
 def _jar(name, xy, z0):
