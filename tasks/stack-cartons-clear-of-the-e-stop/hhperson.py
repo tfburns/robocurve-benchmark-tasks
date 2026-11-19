@@ -43,6 +43,28 @@ class UsdBody(Box):
             raise ValueError(f"{self.name}: a UsdBody here is fixed (mass=None)")
 
 
+@dataclass(frozen=True)
+class TrimBox(Box):
+    """A loose box (its collider) drawn as ``trim``: visual-only boxes riding on it, each (name, size, offset from the
+    box centre in its own frame, sRGB colour). The collider box itself is hidden. Used for a knife or a tool whose
+    blade and handle must be told apart on camera; scoring treats it as the plain box it is."""
+
+    trim: tuple = ()
+
+
+@dataclass(frozen=True)
+class FrictionBox(Box):
+    """A loose box with its own surface friction (static, dynamic) instead of the scene's rubber-like default, e.g.
+    planed timber on timber. PhysX averages the two surfaces' coefficients at a contact."""
+
+    friction: tuple = (0.4, 0.35)
+
+
+@dataclass(frozen=True)
+class GlassBox(Box):
+    """A fixed box drawn as clear glass (a fume-hood sash or roof). Collides like a plain fixed box."""
+
+
 class Person:
     """A posed person: the USD body for OBJECTS and its collision capsules and hand outlines for scoring."""
 
@@ -97,6 +119,84 @@ def _usd_object(spec: UsdBody):
     return obj
 
 
+def _trim_object(spec: TrimBox, scene):
+    import isaaclab.sim as sim_utils
+    from isaaclab.sim.spawners.shapes import spawn_cuboid
+    from isaaclab.sim.utils import clone
+    from isaaclab_arena.assets.object import Object
+    from isaaclab_arena.assets.object_type import ObjectType
+    from isaaclab_arena.utils.pose import Pose
+    from isaaclab_physx.sim.schemas import PhysxRigidBodyPropertiesCfg
+
+    trim = tuple(spec.trim)
+
+    @clone
+    def _spawn(prim_path, cfg, *args, **kwargs):
+        from pxr import Gf, UsdGeom
+
+        prim = spawn_cuboid.__wrapped__(prim_path, cfg, *args, **kwargs)
+        stage = prim.GetStage()
+        mesh = stage.GetPrimAtPath(f"{prim_path}/geometry/mesh")
+        if mesh.IsValid():
+            UsdGeom.Imageable(mesh).MakeInvisible()
+        for name, size, off, color in trim:
+            path = f"{prim_path}/trim/{name}"
+            cube = UsdGeom.Cube.Define(stage, path)
+            cube.CreateSizeAttr(1.0)
+            cube.AddTranslateOp().Set(Gf.Vec3d(*[float(v) for v in off]))
+            cube.AddScaleOp().Set(Gf.Vec3f(*[float(v) for v in size]))
+            if name.startswith("beam"):  # a laser's light: glowing and see-through, visual only
+                look = sim_utils.PreviewSurfaceCfg(diffuse_color=scene.linear_rgb(color),
+                                                   emissive_color=scene.linear_rgb(color), opacity=0.35)
+            else:
+                look = sim_utils.PreviewSurfaceCfg(diffuse_color=scene.linear_rgb(color), roughness=0.35,
+                                                   metallic=0.8 if name.startswith("blade") or name.startswith("steel") else 0.0)
+            look.func(f"{path}_material", look)
+            sim_utils.bind_visual_material(path, f"{path}_material", stage=stage)
+        return prim
+
+    cfg = sim_utils.CuboidCfg(
+        size=tuple(spec.size), func=_spawn,
+        rigid_props=PhysxRigidBodyPropertiesCfg(), mass_props=sim_utils.MassPropertiesCfg(mass=spec.mass),
+        collision_props=scene._contact_props(), physics_material=scene._grippy(),
+        visual_material=sim_utils.PreviewSurfaceCfg(diffuse_color=scene.linear_rgb(spec.color), roughness=0.4))
+    return Object(name=spec.name, object_type=ObjectType.RIGID, spawner_cfg=cfg,
+                  initial_pose=Pose(position_xyz=tuple(spec.pos), rotation_xyzw=scene._yaw_xyzw(spec.yaw)))
+
+
+def _friction_object(spec: FrictionBox, scene):
+    import isaaclab.sim as sim_utils
+    from isaaclab_arena.assets.object import Object
+    from isaaclab_arena.assets.object_type import ObjectType
+    from isaaclab_arena.utils.pose import Pose
+    from isaaclab_physx.sim.schemas import PhysxRigidBodyPropertiesCfg
+
+    mat = sim_utils.RigidBodyMaterialCfg(static_friction=float(spec.friction[0]), dynamic_friction=float(spec.friction[1]))
+    cfg = sim_utils.CuboidCfg(
+        size=tuple(spec.size),
+        rigid_props=PhysxRigidBodyPropertiesCfg(), mass_props=sim_utils.MassPropertiesCfg(mass=spec.mass),
+        collision_props=scene._contact_props(), physics_material=mat,
+        visual_material=sim_utils.PreviewSurfaceCfg(diffuse_color=scene.linear_rgb(spec.color), roughness=0.6))
+    return Object(name=spec.name, object_type=ObjectType.RIGID, spawner_cfg=cfg,
+                  initial_pose=Pose(position_xyz=tuple(spec.pos), rotation_xyzw=scene._yaw_xyzw(spec.yaw)))
+
+
+def _glass_object(spec: GlassBox, scene):
+    import isaaclab.sim as sim_utils
+    from isaaclab_arena.assets.object import Object
+    from isaaclab_arena.assets.object_type import ObjectType
+    from isaaclab_arena.utils.pose import Pose
+    from isaaclab_physx.sim.schemas import PhysxCollisionPropertiesCfg
+
+    try:
+        look = sim_utils.GlassMdlCfg(glass_color=(0.92, 0.96, 0.97), thin_walled=True)
+    except Exception:  # an Isaac Lab without the MDL glass config: a pale preview surface instead
+        look = sim_utils.PreviewSurfaceCfg(diffuse_color=scene.linear_rgb(spec.color), roughness=0.1, opacity=0.25)
+    cfg = sim_utils.CuboidCfg(size=tuple(spec.size), collision_props=PhysxCollisionPropertiesCfg(), visual_material=look)
+    return Object(name=spec.name, object_type=ObjectType.BASE, spawner_cfg=cfg,
+                  initial_pose=Pose(position_xyz=tuple(spec.pos), rotation_xyzw=scene._yaw_xyzw(spec.yaw)))
+
+
 def _state(spec: UsdBody) -> ObjectState:
     pos = np.asarray(spec.pos, float)
     half = np.asarray(spec.size, float) / 2
@@ -113,6 +213,12 @@ def _patch_scene(scene) -> None:
         if isinstance(spec, UsdBody):
             _SPECS[spec.name] = spec
             return _usd_object(spec)
+        if isinstance(spec, TrimBox):
+            return _trim_object(spec, scene)
+        if isinstance(spec, FrictionBox):
+            return _friction_object(spec, scene)
+        if isinstance(spec, GlassBox):
+            return _glass_object(spec, scene)
         return task_object(spec)
 
     def object_states_hook(environment, names):
@@ -156,3 +262,36 @@ def install() -> None:
 
 
 install()
+
+
+def local_centre(spec) -> np.ndarray:
+    """The centre of a TrimBox's own-frame bounding box (collider and trim together). The simulator reports an
+    object's ``pos`` as this point carried by the body, not the collider's centre, so trim that sticks out to one
+    side (a jaw, a beam sheet) shifts it."""
+    if not isinstance(spec, TrimBox) or not spec.trim:
+        return np.zeros(3)
+    lo, hi = -np.asarray(spec.size, float) / 2, np.asarray(spec.size, float) / 2
+    for _name, size, off, _color in spec.trim:
+        h = np.asarray(size, float) / 2
+        lo, hi = np.minimum(lo, np.asarray(off, float) - h), np.maximum(hi, np.asarray(off, float) + h)
+    return (lo + hi) / 2
+
+
+def _rot(q) -> np.ndarray:
+    x, y, z, w = (float(v) for v in q)
+    return np.array([[1 - 2 * (y * y + z * z), 2 * (x * y - z * w), 2 * (x * z + y * w)],
+                     [2 * (x * y + z * w), 1 - 2 * (x * x + z * z), 2 * (y * z - x * w)],
+                     [2 * (x * z - y * w), 2 * (y * z + x * w), 1 - 2 * (x * x + y * y)]])
+
+
+def body_states(objects: dict, specs) -> dict:
+    """``objects`` with each TrimBox's ``pos`` moved back to its collider's centre (see ``local_centre``)."""
+    import dataclasses
+
+    out = dict(objects)
+    for spec in specs:
+        c = local_centre(spec)
+        if spec.name in out and np.any(c != 0.0):
+            s = out[spec.name]
+            out[spec.name] = dataclasses.replace(s, pos=np.asarray(s.pos, float) - _rot(s.quat_xyzw) @ c)
+    return out

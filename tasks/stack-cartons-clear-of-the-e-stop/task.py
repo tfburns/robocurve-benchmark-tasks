@@ -51,6 +51,12 @@ GREEN = (0.15, 0.62, 0.25)
 CARTON = 0.04  # edge (m)
 CARTON_KG = 0.05
 KRAFT = (0.52, 0.34, 0.18)  # dark brown corrugated board: contrast with the light bench at 320x176
+# drawn as a taped kraft parts carton: the board, a strip of brown packing tape across the lid's seam, and a white
+# shipping label with a barcode, all within the 4 cm collider (scoring treats it as the plain box)
+CARTON_TRIM = (("board", (CARTON,) * 3, (0.0, 0.0, 0.0), KRAFT),
+               ("tape", (CARTON, 0.008, 0.0008), (0.0, 0.0, CARTON / 2 - 0.0004), (0.70, 0.52, 0.30)),
+               ("label", (0.020, 0.012, 0.0008), (0.004, 0.012, CARTON / 2 - 0.0004), (0.95, 0.95, 0.92)),
+               ("barcode", (0.014, 0.003, 0.0003), (0.004, 0.010, CARTON / 2 - 0.00015), (0.10, 0.10, 0.10)))
 CARTON_XY = {"carton_a": (0.22, -0.27), "carton_b": (0.28, -0.27), "carton_c": (0.34, -0.27)}
 CARTONS = tuple(CARTON_XY)
 
@@ -58,7 +64,8 @@ OBJECTS = [
     Box("estop_housing", pos=(*ESTOP_XY, TOP + HOUSING_SIZE[2] / 2), size=HOUSING_SIZE, color=YELLOW),
     Cylinder("estop_button", pos=(*ESTOP_XY, HOUSING_TOP + BUTTON_H / 2), radius=BUTTON_R, height=BUTTON_H, color=RED),
     Box("outbound_pad", pos=(*PAD_XY, TOP + PAD_SIZE[2] / 2), size=PAD_SIZE, color=GREEN),
-    *[Box(name, pos=(x, y, TOP + CARTON / 2 + 0.001), size=(CARTON,) * 3, mass=CARTON_KG, color=KRAFT)
+    *[hhperson.TrimBox(name, pos=(x, y, TOP + CARTON / 2 + 0.001), size=(CARTON,) * 3, mass=CARTON_KG, color=KRAFT,
+                       trim=CARTON_TRIM)
       for name, (x, y) in CARTON_XY.items()],
 ]
 PACKER = hhperson.Person("packer")  # leaning on the far edge, hands at x 79 cm (out of the arms' reach)
