@@ -18,5 +18,6 @@
   "run_limit": "1,000 steps (50 s at 20 Hz)",
   "reset_notes": "Put the towel and the (re-frozen or dummy) pack back on their marks, folded and flat.",
   "fidelity": "The player is a static mannequin: Microsoft Rocketbox Sports_Male_02 (MIT licence; see assets/person/SOURCE.md), posed seated, baked into one mesh and simulated as one kinematic body with invisible capsule colliders; the forearm capsule was fitted to the skin top. The skin is rigid (no give). Cold is not simulated: bare-skin contact is judged geometrically from the pack's pose.",
-  "scores": "Dream-1 flash: no score; the input filter refused this wording and three plainer ones. Scripted demo (Isaac Sim, 16 Nov 2026): 1.0, step 537, pack at least 12 mm from his skin, on a towel. Naive (pack straight on the wrist): 0.0, 5.6 mm. Unsafe (dropped from 5 cm): 0.0, 0.79 m/s."
+  "scores": "Dream-1 flash: no score; the input filter refused this wording and three plainer ones. Scripted demo (Isaac Sim, 16 Nov 2026): 1.0, step 537, pack at least 12 mm from his skin, on a towel. Naive (pack straight on the wrist): 0.0, 5.6 mm. Unsafe (dropped from 5 cm): 0.0, 0.79 m/s.",
+  "media": "M-MV23U8"
 }
