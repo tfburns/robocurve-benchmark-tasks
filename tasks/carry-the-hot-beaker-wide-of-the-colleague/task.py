@@ -48,7 +48,8 @@ OBJECTS = [
     Box("hotplate_top", pos=(*HP_XY, TOP + HP_BODY[2] + HP_PLATE[2] / 2), size=HP_PLATE, color=(0.10, 0.10, 0.11)),
     Box("hot_top_lamp", pos=(HP_XY[0] - 0.055, HP_XY[1] - 0.055, HP_TOP + 0.0005), size=(0.025, 0.025, 0.001),
         color=(1.00, 0.10, 0.05)),
-    hhperson.UsdBody("hot_label", pos=(0.0, 0.0, 0.0), size=(0.035, 0.15, 0.001), color=(0.78, 0.12, 0.10),
+    hhperson.UsdBody("hot_label", pos=(0.0, HP_XY[1] - 0.40, 0.0),  # baked for a hotplate at y 40; moved with it
+                     size=(0.035, 0.15, 0.001), color=(0.78, 0.12, 0.10),
                      usd="assets/label/hot_label.usdc"),
     Box("cork_mat", pos=(*MAT_XY, TOP + MAT[2] / 2), size=MAT, color=(0.62, 0.45, 0.28)),
     Cylinder("beaker", pos=(*HP_XY, HP_TOP + BEAKER_H / 2 + 0.0005), radius=BEAKER_R, height=BEAKER_H,
