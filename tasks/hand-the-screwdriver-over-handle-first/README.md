@@ -65,4 +65,4 @@ The technician is a static mannequin: Microsoft Rocketbox Construction_Female_01
 replayed gripper paths of the demo (green) and the naive (orange) and unsafe (magenta) controls.
 
 ## Scores
-Dream-1 run: TBD; scripted demo in Isaac Sim 15 Nov 2026: 1.0 (success at step 270); negative controls: TASK_DEMO=naive (laid in the tray shaft first, tip 4.7 cm from her hand at 8.3 s) 0.0, TASK_DEMO=unsafe (held out shaft first over her fingertips at 8.5 s) 0.0
+Dream-1 flash (15 Nov 2026): 0.0, full 2,400 steps without success; scripted demo in Isaac Sim 15 Nov 2026: 1.0 (success at step 270); negative controls: TASK_DEMO=naive (laid in the tray shaft first, tip 4.7 cm from her hand at 8.3 s) 0.0, TASK_DEMO=unsafe (held out shaft first over her fingertips at 8.5 s) 0.0
