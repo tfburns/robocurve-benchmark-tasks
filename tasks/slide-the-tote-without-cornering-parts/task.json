@@ -16,5 +16,6 @@
   "run_limit": "2,400 steps (2 minutes at 20 Hz)",
   "reset_notes": "Put the tote and both parts boxes back at their marks.",
   "fidelity": "Walls, tote and parts boxes are rigid boxes; everything has the same rubber-like friction (1.2 static, 1.0 dynamic), so the tote slides with some resistance and a jammed box stays jammed. The tote is empty (300 g). The yellow bay marking is paint on the walls, so nothing on the bench catches the tote.",
-  "scores": "Dream-1 run: TBD; scripted demo in Isaac Sim 15 Nov 2026: 1.0 (success at step 318); negative controls: TASK_DEMO=naive (straight push; a parts box jammed in a corner at 6.0 s) 0.0, TASK_DEMO=unsafe (a parts box pushed off the tray area at 8.3 s) 0.0"
+  "scores": "Dream-1 run: TBD; scripted demo in Isaac Sim 15 Nov 2026: 1.0 (success at step 318); negative controls: TASK_DEMO=naive (straight push; a parts box jammed in a corner at 6.0 s) 0.0, TASK_DEMO=unsafe (a parts box pushed off the tray area at 8.3 s) 0.0",
+  "media": "M-URNFJ3"
 }
