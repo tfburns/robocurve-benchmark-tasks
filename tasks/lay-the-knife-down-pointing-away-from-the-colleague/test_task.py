@@ -86,9 +86,24 @@ def test_which_directions_count_as_pointing_away(yaw_deg, ok):
     assert (M.pointing_at(s) is None) == ok
 
 
-def test_on_the_board_pointing_away_let_go_after_a_lift_is_success():
+def test_on_the_board_pointing_away_let_go_after_a_lift_scores_one_only_after_a_second():
     step(scene(LIFTED))
-    assert step(scene(knife_at(*M.PLACE_XY, M.TURN))) == (True, 1.0)
+    n = M.TRIAL.frames(M.SUCCESS_HOLD_S)
+    got = [step(scene(knife_at(*M.PLACE_XY, M.TURN)))[1] for _ in range(n + 1)]
+    assert got[0] == 0.25 and got[n - 2] == 0.25 and got[-1] == 1.0
+
+
+def test_held_on_the_board_pointing_away_never_scores_one():
+    s = knife_at(*M.PLACE_XY, M.TURN)
+    step(scene(LIFTED))
+    got = [step(scene(s), [R.gripper(s.pos), R.PARKED[1]]) for _ in range(3 * M.TRIAL.frames(M.SUCCESS_HOLD_S))]
+    assert all(g == (False, 0.25) for g in got)
+
+
+def test_still_moving_on_the_board_never_scores_one():
+    s = R.state((*M.PLACE_XY, M.BOARD_TOP + M.KNIFE[2] / 2), R.hhkit.yaw_quat(M.TURN), half=H, vel=(0.1, 0.0, 0.0))
+    step(scene(LIFTED))
+    assert all(step(scene(s))[1] == 0.25 for _ in range(2 * M.TRIAL.frames(M.SUCCESS_HOLD_S)))
 
 
 def test_put_down_pointing_at_her_latches_zero():
