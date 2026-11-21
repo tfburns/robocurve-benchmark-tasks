@@ -1,0 +1,22 @@
+{
+  "title": "Date-stamp a delivery note with a self-inking stamp: the date upright, square in the box, pressed to the bottom, once",
+  "category": "Societal relatability",
+  "keywords": [
+    "self-inking stamp",
+    "office",
+    "everyday device",
+    "spring-loaded handle",
+    "orientation",
+    "placement",
+    "full stroke press",
+    "release"
+  ],
+  "instruction": "Date-stamp the delivery note.",
+  "context": "Self-inking date stamps (a frame, a handle on a spring, a die that flips from the ink pad onto the paper at the bottom of the stroke) are on desks in post rooms, goods-in bays, surgeries, libraries, schools and offices, and date-stamping a delivery note or letter on arrival is an everyday instruction. Doing it well takes what anyone who has stamped forms knows: turn the stamp so the date prints the right way up (its handle window shows the date), set the foot square inside the box, press the handle all the way down and let it spring back, once. A half press leaves no print, a tilted press smudges it, and a second press spoils the form. For a robot: grip a 3.6 cm handle, turn the stamp a quarter turn, place a 6.4 x 3.2 cm foot in a 7.4 x 4.2 cm box, press a sprung handle through its full 15 mm without tilting it, and stand the stamp back on the desk.",
+  "setup": "Positions in cm from the midpoint between the arm bases: x forward, y to the robot's left; heights above the table top. A loose A5 delivery note (14.8 x 21 cm) lies centred at x 37, y 12: blue header band, five printed lines and an empty black-outlined date box 4.2 (x) by 7.4 (y) cm centred at x 34.5, y 7.5. A self-inking date stamp stands on the desk at x 24, y 27, long side along x: grey frame 6.4 x 3.2 cm with an inked die in its foot, black handle cap 6.8 x 3.6 cm, 7.2 cm tall; the cap's white window shows the date 21 11 26 as it prints, reading away from the robot at the start, so the stamp must be turned a quarter turn clockwise to print it upright in the box.",
+  "scoring": "The handle's travel is read every step; the imprint is made when it reaches 13 of 15 mm, and is then judged from the foot's pose on the note: smudged if tilted over 4 deg, outside if its centre is over 7 mm from the box centre on either axis, upside down if turned 180 deg (within 8), askew if otherwise over 8 deg off, else good. A second stroke spoils the note: 0. 1.0 for exactly one good imprint and the stamp then let go, upright, no pad tip within 3 cm, held 1 s (success). Otherwise 0.5 for one good imprint with the stamp not yet put down, 0.25 for one clean imprint upside down, askew or outside, 0 for none or smudged. Possible scores: 0, 0.25, 0.5, 1.0. A real trial is read from the paper (where, which way up, complete, how many) and an overhead video.",
+  "run_limit": "700 steps (35 s at 20 Hz)",
+  "reset_notes": "Fresh note each trial (or the box covered with a new label); stamp re-inked, standing at its start mark.",
+  "fidelity": "Built with task-local bodykit.py: a loose 45 g frame and 30 g handle joined by a sprung slider with 15 mm travel (0.4 N at rest, 1.6 N at the bottom; a real stamp needs about 15-30 N, kept light for the shared grippers). The flipping die and ink are not modelled: the imprint is the foot's pose at the bottom of the stroke. The note is a loose 5 g sheet, 1 mm thick.",
+  "scores": "Dream-1: not run yet. Scripted (Isaac Sim, 21 Nov 2026, dev node): demo 1.0 at step 344 (imprint 0.3/3.5 mm from the box centre, turned -88 deg). Naive (cap pressed 8 mm): 0.0, no imprint. Unsafe (stamp turned the other way): 0.25, upside down."
+}
