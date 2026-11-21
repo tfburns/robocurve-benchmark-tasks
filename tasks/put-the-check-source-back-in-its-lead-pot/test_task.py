@@ -98,8 +98,12 @@ def test_source_in_lid_on_scores_1():
     assert sc == 1.0 and ok
 
 
-def test_lid_left_off_scores_0():
-    assert run([start(), scene(in_pot(), lid((*M.L_XY, M.TOP)))], n=25) == (False, 0.0)
+def test_lid_left_off_scores_half():
+    assert run([start(), scene(in_pot(), lid((*M.L_XY, M.TOP)))], n=25) == (False, M.SOURCE_IN_OPEN_POT)
+
+
+def test_lid_left_off_scores_0_before_a_second():
+    assert run([start(), scene(in_pot(), lid((*M.L_XY, M.TOP)))], n=5) == (False, 0.0)
 
 
 def test_lid_on_empty_pot_scores_0():
@@ -167,16 +171,17 @@ def _grip_at(p):
     return [{"tcp": p, "tips": [p + [0, 0.01, 0], p - [0, 0.01, 0]]}, FAR[1]]
 
 
-def test_lid_still_held_on_the_pot_never_scores():
+def test_lid_still_held_on_the_pot_never_scores_full():
     run([start(), scene(in_pot(), lid((*M.L_XY, M.TOP)))])
     knob = np.array([*M.P_XY, M.TOP + M.P_H + M.KNOB_Z])
-    assert run([scene(in_pot(), closed())], grips=_grip_at(knob), n=60) == (False, 0.0)
+    # the lid still in the hand never counts as closed; the source alone in the open pot is half credit
+    assert run([scene(in_pot(), closed())], grips=_grip_at(knob), n=60) == (False, M.SOURCE_IN_OPEN_POT)
 
 
 def test_closed_scores_only_after_a_second():
     run([start(), scene(in_pot(), lid((*M.L_XY, M.TOP)))])
     n = M.TRIAL.frames(M.SUCCESS_HOLD_S)
-    assert run([scene(in_pot(), closed())], n=n - 1)[1] == 0.0
+    assert run([scene(in_pot(), closed())], n=n - 1)[1] < 1.0
     assert run([scene(in_pot(), closed())], n=1)[1] == 1.0
 
 

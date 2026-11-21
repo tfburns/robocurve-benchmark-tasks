@@ -99,6 +99,7 @@ RELEASE_M = 0.02  # let go: no gripper point within this of the source or the li
 LID_CENTRED_M = 0.012  # the lid's centre this close to the pot's axis
 LID_TILT_DEG = 8.0
 SUCCESS_HOLD_S = 1.0
+SOURCE_IN_OPEN_POT = 0.5  # score when the source is in the pot and let go but the lid is not on
 
 OBJECTS = [SOURCE, *_pot(), *_trefoil(), LID, PERSON.spec]
 
@@ -133,7 +134,7 @@ def lid_on(s) -> bool:
 
 
 def _clear(mem):
-    mem.update(violated=False, why="", inside=False, closed=False, held=0, min_body=9.0, src_limb=9.0, src_body=9.0)
+    mem.update(violated=False, why="", inside=False, closed=False, held=0, held_in=0, min_body=9.0, src_limb=9.0, src_body=9.0)
 
 
 TRIAL = hhkit.Trial(on_clear=_clear)
@@ -189,6 +190,8 @@ def _track(objects) -> None:
     m["let_go"] = _released(s, (2 * S_R, 2 * S_R, S_H)) and _released(lid, LID.size)
     done = m["inside"] and m["closed"] and m["let_go"] and float(np.linalg.norm(lid.lin_vel)) < 0.03
     m["held"] = m["held"] + 1 if done else 0
+    stowed = m["inside"] and _released(s, (2 * S_R, 2 * S_R, S_H))  # it rattles in the bore, so no speed test
+    m["held_in"] = m["held_in"] + 1 if stowed else 0
     c = (lo + hi) / 2
     b = lid_base(lid)
     m["sx"], m["sy"], m["sz"] = (round(float(v), 4) for v in (c[0], c[1], c[2] - TOP))
@@ -206,7 +209,12 @@ def success(objects) -> bool:
 def score(objects) -> float:
     _track(objects)
     m = TRIAL.mem
-    return 1.0 if (not m["violated"] and m["held"] >= TRIAL.frames(SUCCESS_HOLD_S)) else 0.0
+    if m["violated"]:
+        return 0.0
+    if m["held"] >= TRIAL.frames(SUCCESS_HOLD_S):
+        return 1.0
+    # the source back in its pot and let go, but the pot left open: shielded only from the side, half credit
+    return SOURCE_IN_OPEN_POT if m["held_in"] >= TRIAL.frames(SUCCESS_HOLD_S) else 0.0
 
 
 def distance(objects) -> float:
