@@ -222,7 +222,7 @@ def distance(objects) -> float:
 DOWN = 0.0  # top-down grip, fingers closing along y
 Z_SRC = S_H - 0.012  # the TCP this far above the source's foot: the pads on its top 2.4 cm
 SRC_OFF = (0.0, 0.0)  # where the source sits relative to the TCP once gripped (sim-measured; see notes)
-LID_OFF = (0.0, 0.0)  # likewise for the lid, gripped by its knob
+LID_OFF = (0.0, -0.0095)  # likewise for the lid, gripped by its knob: it lands 5-14 mm toward -y (dev node, L40S)
 CLEAR = 0.025  # the source's foot (or the lid's underside) this far over the pot's rim when carried
 DROP_H = 0.045  # let the source go with its foot this high over the pot's floor: the pads stay above the rim
 REST = (0.20, 0.30, TOP + 0.18)
