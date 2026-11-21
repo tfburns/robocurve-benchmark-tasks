@@ -160,3 +160,28 @@ def test_demo_plans():
         plan = M.demo()
         assert set(plan) == {"left"} and len(plan["left"]) > 5
     os.environ.pop("TASK_DEMO")
+
+
+def _grip_at(p):
+    p = np.asarray(p, float)
+    return [{"tcp": p, "tips": [p + [0, 0.01, 0], p - [0, 0.01, 0]]}, FAR[1]]
+
+
+def test_lid_still_held_on_the_pot_never_scores():
+    run([start(), scene(in_pot(), lid((*M.L_XY, M.TOP)))])
+    knob = np.array([*M.P_XY, M.TOP + M.P_H + M.KNOB_Z])
+    assert run([scene(in_pot(), closed())], grips=_grip_at(knob), n=60) == (False, 0.0)
+
+
+def test_closed_scores_only_after_a_second():
+    run([start(), scene(in_pot(), lid((*M.L_XY, M.TOP)))])
+    n = M.TRIAL.frames(M.SUCCESS_HOLD_S)
+    assert run([scene(in_pot(), closed())], n=n - 1)[1] == 0.0
+    assert run([scene(in_pot(), closed())], n=1)[1] == 1.0
+
+
+def test_trefoil_label_clear_of_the_pot_and_lid():
+    def gap(c, r):  # the label square to a circle of radius r at c
+        d = np.maximum(np.abs(np.asarray(c) - np.asarray(M.T_XY)) - M.T_SIDE / 2, 0.0)
+        return float(np.linalg.norm(d)) - r
+    assert gap(M.P_XY, M.P_ROUT) > 0.01 and gap(M.L_XY, M.L_R) > 0.01
