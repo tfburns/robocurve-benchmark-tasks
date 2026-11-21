@@ -97,6 +97,24 @@ def _stop_shapes():
             BoxShape((dx + s1[0], dy + s1[1], (sz + zc + 0.004) / 2), (0.006, 0.006, zc + 0.004 - sz), STEEL)]
 
 
+SEG = {0: "abcdef", 1: "bc", 2: "abged", 3: "abgcd", 4: "fgbc", 5: "afgcd", 6: "afgedc", 7: "abc", 8: "abcdefg",
+       9: "abcdfg"}
+
+
+def _digit(d: int, cx: float, cy: float, h: float, z: float) -> list:
+    """A seven-segment digit ``h`` tall centred at (cx, cy), upright as the robot sees it (its top toward +x)."""
+    w, t = 0.55 * h, 0.16 * h
+    s = {"a": (h / 2, 0, w, t), "g": (0, 0, w, t), "d": (-h / 2, 0, w, t),
+         "f": (h / 4, w / 2, t, h / 2), "b": (h / 4, -w / 2, t, h / 2),
+         "e": (-h / 4, w / 2, t, h / 2), "c": (-h / 4, -w / 2, t, h / 2)}
+    out = []
+    for k in SEG[d]:
+        ddx, ddy, sy, sx = s[k]
+        out.append(BoxShape((cx + ddx, cy + ddy, z), (sx if k in "fbec" else t, sy if k in "agd" else t, 0.0004),
+                            BLACK, collide=False))
+    return out
+
+
 def _phone_body():
     sx, sy, sz = P_SIZE
     dx, dy = D_XY[0] - P_XY[0], D_XY[1] - P_XY[1]
@@ -106,11 +124,9 @@ def _phone_body():
               *[BoxShape((0.0575, s * 0.075, sz + 0.040), (0.010, 0.010, 0.010), WHITE, collide=False)
                 for s in (-1, 1)],  # the hook-switch plungers, up: off the hook
               CylShape((dx, dy, sz + RING_T / 2), R_WHEEL + 0.006, RING_T, WHITE)]  # the number ring
-    for d in range(10):  # a black mark per digit on the ring, seen through its hole (longer for higher digits)
+    for d in range(10):  # each digit printed on the ring, seen through its hole at rest (upright to the robot)
         c = _dir(hole_psi(d), R_PITCH)
-        n = 10 if d == 0 else d
-        shapes.append(BoxShape((dx + c[0], dy + c[1], sz + RING_T + 0.0002), (0.0025 + 0.0007 * n, 0.003, 0.0004),
-                               BLACK, collide=False, yaw=-math.radians(hole_psi(d))))
+        shapes += _digit(d, dx + c[0], dy + c[1], 0.009, sz + RING_T + 0.0002)
     shapes += _stop_shapes()
     return Body.build("phone", pos=(*P_XY, TOP), mass=1.0, shapes=shapes, color=IVORY, friction=(0.9, 0.8),
                       com=(0.0, 0.0, 0.03))
@@ -293,10 +309,15 @@ def success(objects) -> bool:
     return not EP["violated"] and EP["held"] >= int(SUCCESS_HOLD_S * HZ)
 
 
+PER_DIGIT = 0.25  # partial credit: each correct digit sent, in order, while nothing has gone wrong
+
+
 def score(objects) -> float:
     if EP["violated"]:
         return 0.0
-    return 1.0 if EP["held"] >= int(SUCCESS_HOLD_S * HZ) else 0.0
+    if EP["held"] >= int(SUCCESS_HOLD_S * HZ):
+        return 1.0
+    return PER_DIGIT * len(EP["digits"])  # 0.25 / 0.5 / 0.75 for 1 / 12 / 123 sent but not finished
 
 
 def distance(objects) -> float:

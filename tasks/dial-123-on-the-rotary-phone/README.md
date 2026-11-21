@@ -28,8 +28,8 @@ release, three times, in the right holes. 123 is the UK speaking clock.
 - **Phone:** ivory, base 16 x 21.5 cm, 6 cm tall, raised back with the cradle; 1.0 kg, loose on rubber feet,
   centred at x 30, y 16. Hook-switch plungers up (off the hook).
 - **Dial:** centred at x 27.2, y 16, top 6.7 cm up. Black finger wheel 10 cm across, 4 mm thick, ten holes (gaps
-  1.5 cm across between spokes, centres 3.6 cm from the middle) over a white number ring with a mark per digit (longer
-  for higher digits). Seen from the robot: 1 at about 1:30 on a clock face, each next digit 30 degrees anticlockwise,
+  1.5 cm across between spokes, centres 3.6 cm from the middle) over a white number ring with the digits printed on it,
+  one seen through each hole. Seen from the robot: 1 at about 1:30 on a clock face, each next digit 30 degrees anticlockwise,
   0 last at about 4:30; the steel finger stop reaches in over the wheel at about 4 o'clock.
 - **Handset:** off the hook, lying on the desk to the phone's right (x 34, y -3), its cord running to the phone.
 
@@ -45,7 +45,9 @@ The wheel's turn (degrees, clockwise from rest) is read every control step.
 - **Score 0 for the whole trial** if a digit is garbled, if the digits sent so far are not the start of 123 (a wrong
   or extra digit), or if the phone is pushed 2 cm across the desk.
 - **At the end: 1.0** if exactly 123 was sent, the wheel is at rest and no pad tip is within 3 cm above the dial
-  (success: that held for 1 s); **0** otherwise. Possible scores: 0, 1.0.
+  (success: that held for 1 s). Otherwise, partial credit for progress: **0.25 per correct digit sent** (0.25 for
+  "1", 0.5 for "12", 0.75 for "123" with the finger still over the dial). Possible scores: 0, 0.25, 0.5, 0.75, 1.0.
+  A wrong number never earns credit: any wrong, extra or garbled digit is 0.
 
 On a real setup the same rules are read from an overhead video (finger to the stop, out, free run-back) and the
 phone's own dialling: a line simulator or analogue telephone adapter shows the digits received.
@@ -58,7 +60,8 @@ phone's own dialling: a line simulator or analogue telephone adapter shows the d
   it pushes back with about 0.03 N m (some 0.8 N at a hole).
 - The holes are the gaps between eleven spokes (the 60 degrees under the stop is solid); the finger stop is a rigid
   part of the phone.
-- The dial lies flat; on a GPO 746 it leans back about 20 degrees. The number ring carries marks, not printed digits.
+- The dial lies flat; on a GPO 746 it leans back about 20 degrees. The ring's digits are plain seven-segment figures
+  (no letters).
 - The handset and its cord are fixed and visual only. There is no electrical model: the scorer decodes the pulses
   from the wheel's turn as a real dial does.
 
@@ -76,12 +79,12 @@ and the 8 mm side across the 1.5 cm gap, and follows the hole round in 10-degree
 
 | Run | Score | Notes |
 |---|---|---|
-| Scripted demo (Isaac Sim, 21 Nov 2026, dev node) | 1.0 | success at step 431; turns 56, 85, 115 degrees |
-| Naive | 0.0 | 1 sent nothing, then 1 and 2: "12" |
+| Scripted demo (Isaac Sim, 21 Nov 2026; dev node and L40S scoring run agree) | 1.0 | success at step 431; turns 56, 85, 115 degrees |
+| Naive | 0.5 | 1 sent nothing, then 1 and 2: "12" |
 | Unsafe | 0.0 | digit 1 ridden back with the finger (30 steps) |
-| Dream-1 | not run yet | |
+| Dream-1 (flash, 320 x 176, seed 1, 800 steps) | 0.0 | brought the left gripper over the phone's near edge and hovered there; never put a finger in a hole (no digit sent) |
 
-Offline tests: `pytest test_task.py` (11 tests: pulse decoding, hole layout, the 1 s hold, short turns, wrong and
+Offline tests: `pytest test_task.py` (11 tests: pulse decoding, hole layout, the 1 s hold, partial credit, short turns, wrong and
 extra digits, riding back, finger left over the dial, phone pushed, plans).
 
 ## Run it

@@ -68,15 +68,16 @@ def test_123_scores_one_only_after_one_second_let_go():
     assert M.EP["digits"] == "123"
     assert M.EP["held"] == 2  # the run back ends on two frames at rest
     s, ok = run([0.0] * (HOLD - 3))
-    assert not ok and s < 1.0
+    assert not ok and s == 0.75
     s, ok = run([0.0] * 3)
     assert ok and s == 1.0
 
 
-def test_no_credit_before_the_whole_number():
+def test_partial_credit_per_digit_before_the_whole_number():
     dial_digit(1)
+    assert run([0.0] * HOLD) == (0.25, False)
     dial_digit(2)
-    assert run([0.0] * HOLD) == (0.0, False)
+    assert run([0.0] * HOLD) == (0.5, False)
 
 
 def test_stopping_short_of_the_stop_misdials():
@@ -86,7 +87,7 @@ def test_stopping_short_of_the_stop_misdials():
     dial_digit(3, short=25.0)  # sends a 2
     for _ in range(3):
         run([0.0] * HOLD)
-    assert M.EP["digits"] == "12" and not M.success({}) and M.score({}) == 0.0
+    assert M.EP["digits"] == "12" and not M.success({}) and M.score({}) == 0.5
 
 
 def test_wrong_digit_is_zero():
@@ -110,7 +111,7 @@ def test_finger_left_over_wheel_does_not_succeed():
     for d in (1, 2, 3):
         dial_digit(d)
     s, ok = run([0.0] * (HOLD + 5), tcps=finger_at(M.hole_psi(3), M.W_TOP + 0.01))
-    assert not ok and s < 1.0
+    assert not ok and s == 0.75
 
 
 def test_phone_pushed_is_zero():
