@@ -109,10 +109,19 @@ def test_one_hook_off_half():
     assert step(st) == (False, 0.5)
 
 
-def test_both_off_slack_full():
+def test_both_off_slack_full_only_after_a_second():
     st = scene(hook_right=hook("hook_right", 0.30, -0.048, M.SEAT_Z + 0.02),
                hook_left=hook("hook_left", 0.30, 0.173, M.SEAT_Z + 0.02))
-    assert step(st) == (True, 1.0)
+    n = M.TRIAL.frames(M.SUCCESS_HOLD_S)
+    got = [step(st) for _ in range(n + 1)]
+    assert got[0] == (True, 0.5) and got[n - 2][1] == 0.5 and got[-1] == (True, 1.0)
+
+
+def test_both_off_but_one_still_held_never_full():
+    hr = hook("hook_right", 0.30, -0.048, M.SEAT_Z + 0.02)
+    st = scene(hook_right=hr, hook_left=hook("hook_left", 0.30, 0.173, M.SEAT_Z + 0.02))
+    got = [step(st, held(hr)) for _ in range(3 * M.TRIAL.frames(M.SUCCESS_HOLD_S))]
+    assert all(s < 1.0 for _, s in got)
 
 
 def test_both_off_but_stretched_not_full():

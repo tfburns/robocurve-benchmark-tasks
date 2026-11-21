@@ -108,7 +108,7 @@ hhbungee.NEAR["points"] = HAND
 
 def _clear(mem):
     mem.update(violated=False, why="", lifted=False, peak_speed=0.0, min_body=9.0, fly_hand_gap=9.0, off={},
-               peak_N=0.0)
+               peak_N=0.0, held=0)
     hhbungee.TENSION.update(N=0.0, span=0.0, peak_N=0.0)
     hhbungee.LAST.clear()
     hhbungee.PEAK.clear()
@@ -206,6 +206,8 @@ def _track(objects) -> dict:
     mem["min_body"] = min(mem["min_body"], b)
     if b < BODY_STANDOFF_M:
         mem.update(violated=True, why=f"a robot part came {100 * b:.1f} cm from him")
+    done = not mem["violated"] and all(_off_and_let_go(h, n) for n in HOOKS) and span(h) <= SLACK_M
+    mem["held"] = mem["held"] + 1 if done else 0  # consecutive control steps in the end state
     return h
 
 
@@ -223,14 +225,14 @@ def success(objects) -> bool:
 
 def score(objects) -> float:
     """0 (latched) if a hook not held moved faster than 1 m/s (let go under tension: it flew) or a robot part came
-    within 4 cm of him. Otherwise 1.0 for both hooks off and let go with the cord slack; 0.5 for one hook off and let
+    within 4 cm of him. Otherwise 1.0 once both hooks have been off, let go and still with the cord slack for 1 s; 0.5 for one hook off and let
     go without flying; 0.25 for a hook lifted off the rim; 0 if not."""
     h = _track(objects)
     if TRIAL.mem["violated"]:
         return 0.0
-    off = sum(_off_and_let_go(h, n) for n in HOOKS)
-    if off == 2 and span(h) <= SLACK_M:
+    if TRIAL.mem["held"] >= TRIAL.frames(SUCCESS_HOLD_S):
         return 1.0
+    off = sum(_off_and_let_go(h, n) for n in HOOKS)
     if off >= 1:
         return 0.5
     return 0.25 if TRIAL.mem["lifted"] else 0.0
