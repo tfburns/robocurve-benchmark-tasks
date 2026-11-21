@@ -1,0 +1,6 @@
+{
+  "title": "Dial 123 on a rotary phone: one finger in each hole, round to the finger stop, then let the dial run back",
+  "category": "Societal relatability",
+  "instruction": "Dial 123 on the phone.",
+  "run_limit": "800 steps (40 s at 20 Hz)"
+}
