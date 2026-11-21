@@ -1,6 +1,22 @@
 {
-  "title": "Dial 123 on a rotary phone: one finger in each hole, round to the finger stop, then let the dial run back",
+  "title": "Dial 123 on a rotary phone: a finger in each digit's hole, round to the finger stop, out, and let the dial run back",
   "category": "Societal relatability",
+  "keywords": [
+    "rotary dial",
+    "telephone",
+    "everyday device",
+    "spring-return mechanism",
+    "finger stop",
+    "single-finger insertion",
+    "circular motion",
+    "release timing"
+  ],
   "instruction": "Dial 123 on the phone.",
-  "run_limit": "800 steps (40 s at 20 Hz)"
+  "context": "Rotary-dial phones are still sold new: GPO 746 reproductions (1.0 kg, 21.5 x 16 cm) are on sale at UK and US retailers, and they are a familiar fixture in homes, hotels and films. Dialling one is a movement most adults know: put a finger in the digit's hole, turn the finger wheel clockwise until the finger meets the metal finger stop, take the finger out and let the wheel run back. As britishtelephones.com describes the British dial, the finger plate \"is rotated by the finger from the selected digit ... to the finger stop and then allowed to return unimpeded to the normal position\"; the digit is sent during the run-back at 10 pulses a second, set by a governor. Stopping short sends a smaller digit or none, and riding the wheel back upsets the pulses: a wrong number. 123 is the UK speaking clock.",
+  "setup": "Positions in cm on the table from the midpoint between the two arm bases: x forward, y to the robot's left; heights above the table top. An ivory desk phone (base 16 x 21.5 cm, 6 cm tall, a raised back with the cradle; 1.0 kg on rubber feet, loose) is centred at x 30, y 16. Its dial is centred at x 27.2, y 16, its top 6.7 cm up: a black finger wheel 10 cm across, 4 mm thick, with ten holes (gaps 1.5 cm across between spokes, centres 3.6 cm from the middle) over a white number ring with a mark for each digit. Seen from the robot, the 1 hole is at about 1:30 on a clock face, each next digit 30 degrees anticlockwise, 0 last at about 4:30; the steel finger stop reaches in over the wheel at about 4 o'clock. The handset is off the hook, lying on the desk to the phone's right (x 34, y -3), its cord running to the phone.",
+  "scoring": "The wheel's turn is read every step. Each time it returns to rest it has sent floor((largest turn - 15 deg)/30 deg) pulses (10 = 0): about 60 deg to the stop for 1, 90 for 2, 120 for 3. A finger in a hole (pad tip below the wheel's top) for 0.3 s while the wheel runs back garbles that digit. Score 0 for the trial if a digit is garbled, the digits sent so far are not the start of 123, or the phone is pushed 2 cm. At the end: 1.0 if exactly 123 was sent, the wheel is at rest and nothing is within 3 cm above the dial (success: that for 1 s); otherwise 0. Possible scores: 0, 1.0. A real trial is scored from an overhead video and the phone's own dialling (a line simulator shows the digits).",
+  "run_limit": "800 steps (40 s at 20 Hz)",
+  "reset_notes": "Phone at its marks, dial at rest, handset off the hook on the desk. Run with -E object_jitter=0.",
+  "fidelity": "Built with task-local bodykit.py: the wheel is a loose body on a hinge whose damped velocity drive stands in for the wound spring and governor (runs back at 300 deg/s, pushes ~0.03 N m when held); the holes are gaps between spokes. The dial lies flat (on a GPO 746 it leans back about 20 deg). The handset and cord are fixed and visual; there is no electrical model: the scorer decodes pulses from the wheel's turn.",
+  "scores": "Dream-1: not run yet. Scripted (Isaac Sim, 21 Nov 2026): demo 1.0 at step 431 (turns 56, 85, 115 deg). Naive (each digit stopped 25 deg short of the stop): 0.0, sent 12. Unsafe (finger rides the wheel back): 0.0, digit 1 garbled."
 }

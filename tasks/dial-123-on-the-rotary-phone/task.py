@@ -142,9 +142,10 @@ def _wheel():
 
 def _handset():
     """The handset, off the hook, lying on the desk to the phone's right; its curly cord is visual only."""
-    shapes = [BoxShape((0.0, 0.0, 0.012), (0.15, 0.03, 0.024), IVORY),
-              BoxShape((-0.085, 0.0, 0.022), (0.05, 0.055, 0.044), IVORY),  # the earpiece cup
-              BoxShape((0.085, 0.0, 0.022), (0.05, 0.055, 0.044), IVORY)]  # the mouthpiece cup
+    shapes = [BoxShape((0.0, 0.0, 0.030), (0.12, 0.026, 0.020), IVORY),  # the handle, arched over the desk
+              *[BoxShape((s * 0.062, 0.0, 0.026), (0.03, 0.03, 0.024), IVORY) for s in (-1, 1)],
+              CylShape((-0.075, 0.0, 0.013), 0.026, 0.026, IVORY),  # the earpiece, face down
+              CylShape((0.075, 0.0, 0.013), 0.024, 0.026, IVORY)]  # the mouthpiece, face down
     p0 = np.array([0.0, 0.03, 0.006])
     for k in range(6):  # the cord: a zig-zag to the phone's side
         p1 = np.array([-0.01 + 0.012 * (k % 2), 0.03 + 0.012 * (k + 1), 0.006])
