@@ -82,11 +82,12 @@ def _trefoil():
     x0, y0 = T_XY
     out = [Box("trefoil_bg", pos=(x0, y0, TOP + 0.0005), size=(T_SIDE, T_SIDE, 0.001), color=YELLOW),
            Cylinder("trefoil_hub", pos=(x0, y0, TOP + 0.0013), color=BLACK, radius=0.0065, height=0.0006)]
-    for i in range(3):
-        a = math.radians(90 + 120 * i)
-        r = 0.022
-        out.append(Box(f"trefoil_blade_{i}", pos=(x0 + r * math.cos(a), y0 + r * math.sin(a), TOP + 0.0013),
-                       size=(0.022, 0.024, 0.0006), yaw=a, color=BLACK))
+    for i in range(3):  # each blade a 60-degree sector from 1.6 to 5.2 hub radii, as four fanned radial strips
+        for j, off in enumerate((-22.5, -7.5, 7.5, 22.5)):
+            a = math.radians(90 + 120 * i + off)
+            r = 0.0225
+            out.append(Box(f"trefoil_blade_{i}_{j}", pos=(x0 + r * math.cos(a), y0 + r * math.sin(a), TOP + 0.0013),
+                           size=(0.024, 0.0085, 0.0006), yaw=a, color=BLACK))
     return out
 
 
